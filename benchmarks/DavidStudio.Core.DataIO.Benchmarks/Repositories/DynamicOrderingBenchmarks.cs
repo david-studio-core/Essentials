@@ -80,11 +80,9 @@ public class DynamicOrderingBenchmarks
     {
         var options = new InfinitePageOptions(10, searchAfter: null);
     
-        var query = _dbContext.TestEntities
+        var entities = await _dbContext.TestEntities
             .AsNoTracking()
-            .OrderBy("id desc");
-    
-        var entities = await query
+            .OrderBy("id desc")
             .Take(options.Size)
             .ToListAsync();
     
@@ -133,11 +131,9 @@ public class DynamicOrderingBenchmarks
     {
         var options = new InfinitePageOptions(10, searchAfter: null);
 
-        var query = _dbContext.TestEntities
+        var entities = await _dbContext.TestEntities
             .AsNoTracking()
-            .OrderByDescending(e => e.Id);
-
-        var entities = await query
+            .OrderByDescending(e => e.Id)
             .Take(options.Size + 1)
             .ToListAsync();
 

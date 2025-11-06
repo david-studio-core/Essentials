@@ -132,8 +132,6 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         CancellationToken cancellationToken = default)
         where TResult : class
     {
-        var (orderByExpressions, isDescending) = DynamicOrderingQueryBuilder.Build<TEntity>(orderByString);
-
         var builder = new InfiniteScrollPaginationQueryBuilder<TEntity, TResult>(Entities)
             .WithTracking(!disableTracking)
             .WithIgnoreQueryFilters(ignoreQueryFilters)
@@ -141,7 +139,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
             .WithPredicate(predicate) as InfiniteScrollPaginationQueryBuilder<TEntity, TResult>;
 
         builder = builder!
-            .WithOrdering(orderByExpressions, isDescending)
+            .WithOrdering(orderByString)
             .WithSearchAfter(options)
             .WithProjection(selector);
 
