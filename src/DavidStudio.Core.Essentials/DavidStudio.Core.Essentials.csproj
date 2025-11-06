@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageId>DavidStudio.Core.Essentials</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>David</Authors>
+        <Company>David Studio</Company>
+        <Product>Essentials</Product>
+        <RepositoryUrl>https://github.com/david-studio-core/Essentials</RepositoryUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DavidStudio.Core.DataIO\DavidStudio.Core.DataIO.csproj"/>
+        <ProjectReference Include="..\DavidStudio.Core.Auth\DavidStudio.Core.Auth.csproj"/>
+        <ProjectReference Include="..\DavidStudio.Core.Swagger\DavidStudio.Core.Swagger.csproj"/>
+        <ProjectReference Include="..\DavidStudio.Core.Pagination\DavidStudio.Core.Pagination.csproj"/>
+        <ProjectReference Include="..\DavidStudio.Core.Results\DavidStudio.Core.Results.csproj"/>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_AddTransitiveProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+    </PropertyGroup>
+
+    <Target Name="_AddTransitiveProjectReferencesToPackage">
+        <ItemGroup>
+            <PackageReference Include="@(ProjectReference->'%(PackageId)')" Version="0.0.0"/>
+        </ItemGroup>
+    </Target>
+
+</Project>
