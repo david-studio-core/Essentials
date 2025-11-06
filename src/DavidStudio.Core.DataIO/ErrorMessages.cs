@@ -1,4 +1,4 @@
-namespace DavidStudio.Core.DataIO.Services;
+namespace DavidStudio.Core.DataIO;
 
 public static class ErrorMessages
 {

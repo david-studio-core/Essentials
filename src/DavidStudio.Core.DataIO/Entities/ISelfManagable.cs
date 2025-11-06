@@ -6,13 +6,8 @@ public interface ISelfManageable<TEntity>
     public void Update(TEntity model);
 }
 
-public interface ISelfManageable<out TEntity, in TCreateModel>
+public interface ISelfManageable<out TEntity, in TCreateModel, in TUpdateModel>
 {
     public static abstract TEntity Create(TCreateModel model);
-}
-
-public interface ISelfManageable<out TEntity, in TCreateModel, in TUpdateModel>
-    : ISelfManageable<TEntity, TCreateModel>
-{
     public void Update(TUpdateModel model);
 }

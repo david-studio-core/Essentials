@@ -1,5 +1,6 @@
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
+using DavidStudio.Core.DataIO.Helpers;
 using DavidStudio.Core.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -52,15 +53,23 @@ public class BasicQueryBuilder<TEntity>(IQueryable<TEntity> query)
         return this;
     }
 
-    public BasicQueryBuilder<TEntity> WithOrdering(string? orderBy,
-        IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy)
+    public BasicQueryBuilder<TEntity> WithOrdering(string? orderBy)
     {
+        // TODO: Remove it after testing my own method of dynamic ordering 
+        //
+        // if (string.IsNullOrWhiteSpace(orderBy)) return this;
+        //
+        // var orderByQuery = DynamicOrderByQueryBuilder.BuildString(orderBy);
+        //
+        // if (!string.IsNullOrWhiteSpace(orderByQuery))
+        //     Query = Query.OrderBy(orderByQuery);
+        //
+        // return this;
+
         if (string.IsNullOrWhiteSpace(orderBy)) return this;
 
-        var orderByQuery = DynamicOrderByQueryBuilder.BuildString(orderBy);
-
-        if (!string.IsNullOrWhiteSpace(orderByQuery))
-            Query = Query.OrderBy(orderByQuery);
+        var (orderByExpressions, isDescending) = DynamicOrderingQueryBuilder.Build<TEntity>(orderBy);
+        Query = DynamicOrderingHelper.Apply(Query, orderByExpressions, isDescending);
 
         return this;
     }

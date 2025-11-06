@@ -1,8 +1,6 @@
-﻿using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using DavidStudio.Core.DataIO.Builders;
 using DavidStudio.Core.DataIO.Entities;
-using DavidStudio.Core.DataIO.Helpers;
 using DavidStudio.Core.Pagination;
 using DavidStudio.Core.Pagination.InfiniteScroll;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +18,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
     : IBaseRepository<TEntity, TKey>, IBaseAggregationRepository<TEntity>
     where TEntity : class, IEntity<TKey>
 {
+    public DbContext Context { get; } = context;
     public DbSet<TEntity> Entities { get; } = context.Set<TEntity>();
 
     public virtual Task<List<TResult>> GetAllAsync<TResult>(
@@ -72,23 +71,19 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         PageOptions options,
         Expression<Func<TEntity, TResult>> selector,
         Expression<Func<TEntity, bool>>? predicate = null,
-        string? orderBy = null,
-        IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy = null,
+        string? orderByString = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
         where TResult : class
     {
-        if (orderBy != null && allowedToOrderBy != null)
-            DynamicOrderByHelper.EnsureOrderByAllowed(orderBy, allowedToOrderBy);
-
         var builder = new BasicQueryBuilder<TEntity>(Entities)
             .WithTracking(!disableTracking)
             .WithIgnoreQueryFilters(ignoreQueryFilters)
             .WithInclude(include)
             .WithPredicate(predicate)
-            .WithOrdering(orderBy, allowedToOrderBy)
+            .WithOrdering(orderByString)
             .WithProjection(selector);
 
         var count = await builder.Query.CountAsync(cancellationToken);
@@ -128,8 +123,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
 
     public Task<InfinitePageData<TResult>> GetAllAsync<TResult>(
         InfinitePageOptions options,
-        string orderBy,
-        IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy,
+        string orderByString,
         Expression<Func<TEntity, TResult>> selector,
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object?>>? include = null,
@@ -138,11 +132,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         CancellationToken cancellationToken = default)
         where TResult : class
     {
-        if (allowedToOrderBy != null)
-            DynamicOrderByHelper.EnsureOrderByAllowed(orderBy, allowedToOrderBy);
-
-        var (orderByExpressions, isDescending) =
-            DynamicOrderByQueryBuilder.BuildInfiniteScrollPaginationObjects<TEntity>(orderBy);
+        var (orderByExpressions, isDescending) = DynamicOrderingQueryBuilder.Build<TEntity>(orderByString);
 
         var builder = new InfiniteScrollPaginationQueryBuilder<TEntity, TResult>(Entities)
             .WithTracking(!disableTracking)
@@ -204,12 +194,12 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
     public virtual void Update(TEntity model)
     {
         Entities.Attach(model);
-        context.Entry(model).State = EntityState.Modified;
+        Context.Entry(model).State = EntityState.Modified;
     }
 
     public virtual void Delete(TEntity model)
     {
-        if (context.Entry(model).State == EntityState.Detached)
+        if (Context.Entry(model).State == EntityState.Detached)
             Entities.Attach(model);
 
         Entities.Remove(model);

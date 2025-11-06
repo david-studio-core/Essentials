@@ -50,7 +50,7 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity, TResult>(IQueryable<T
 
     public async Task<InfinitePageData<TResult>> ExecuteAsync(CancellationToken cancellationToken = default)
     {
-        var ordered = InfiniteScrollPaginationOrderingHelper.ApplyOrdering(Query, _orderBy!, _isDescending!);
+        var ordered = DynamicOrderingHelper.Apply(Query, _orderBy!, _isDescending!);
 
         var temporaryResults = await ordered
             .Select(_selector!)

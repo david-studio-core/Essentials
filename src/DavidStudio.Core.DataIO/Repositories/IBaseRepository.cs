@@ -11,6 +11,7 @@ namespace DavidStudio.Core.DataIO.Repositories;
 public interface IBaseRepository<TEntity, in TKey>
     where TEntity : class, IEntity<TKey>
 {
+    DbContext Context { get; }
     DbSet<TEntity> Entities { get; }
 
     /// <summary>
@@ -71,8 +72,7 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="options">PaginationOptions to paginate result.</param>
     /// <param name="selector">The selector for projection.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
-    /// <param name="orderBy">A string which represents ordering. Ex. "Name asc, date desc, id desc"</param>
-    /// <param name="allowedToOrderBy">A <c>List</c> of expressions which represent allowed properties to order by. If empty, can be ordered using any property.</param>
+    /// <param name="orderByString">A string which represents ordering. Ex. "Name asc, date desc, id desc"</param>
     /// <param name="include">A function to include navigation properties.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
@@ -82,13 +82,11 @@ public interface IBaseRepository<TEntity, in TKey>
     /// </returns>
     /// <remarks>This method executes a no-tracking query.</remarks>
     /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
-    /// <exception cref="InvalidOperationException">Thrown when used not allowed property in <paramref name="orderBy"/>. Ignored when <paramref name="allowedToOrderBy"/> is <c>null</c></exception>
     Task<PageData<TResult>> GetAllAsync<TResult>(
         PageOptions options,
         Expression<Func<TEntity, TResult>> selector,
         Expression<Func<TEntity, bool>>? predicate = null,
-        string? orderBy = null,
-        IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy = null,
+        string? orderByString = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
@@ -130,8 +128,7 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="options">InfinitePaginationOptions to paginate result.</param>
     /// <param name="selector">The selector for projection.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
-    /// <param name="orderBy">A string which represents ordering of results and cursor. Ex. "Name asc, date desc, id desc"</param>
-    /// <param name="allowedToOrderBy">A <c>List</c> of expressions which represent allowed properties to order by. If empty, can be ordered using any property.</param>
+    /// <param name="orderByString">A string which represents ordering of results and cursor. Ex. "Name asc, date desc, id desc"</param>
     /// <param name="include">A function to include navigation properties.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
@@ -141,11 +138,9 @@ public interface IBaseRepository<TEntity, in TKey>
     /// objects and in base64 encoded token. Additionally, it has metadata fields.
     /// </returns>
     /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
-    /// <exception cref="InvalidOperationException">Thrown when used not allowed property in <paramref name="orderBy"/>. Ignored when <paramref name="allowedToOrderBy"/> is <c>null</c></exception>
     Task<InfinitePageData<TResult>> GetAllAsync<TResult>(
         InfinitePageOptions options,
-        string orderBy,
-        IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy,
+        string orderByString,
         Expression<Func<TEntity, TResult>> selector,
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object?>>? include = null,

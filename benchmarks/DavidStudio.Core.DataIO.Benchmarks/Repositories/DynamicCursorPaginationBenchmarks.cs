@@ -7,7 +7,7 @@ namespace DavidStudio.Core.DataIO.Benchmarks.Repositories;
 
 [MemoryDiagnoser]
 [RankColumn]
-public class DynamicVsHardcodedCursorPaginationBenchmarks
+public class DynamicCursorPaginationBenchmarks
 {
     private TestDbContext _dbContext = null!;
     private TestRepository _testRepository = null!;
@@ -60,7 +60,7 @@ public class DynamicVsHardcodedCursorPaginationBenchmarks
             selector: e => e
         );
     }
-    
+
     [Benchmark]
     public async Task DynamicCursorPaginationLastPage()
     {
@@ -82,12 +82,6 @@ public class DynamicVsHardcodedCursorPaginationBenchmarks
     {
         await HardcodedCursorPaginationExampleFirstPage();
     }
-    
-    [Benchmark]
-    public async Task HardcodedCursorPaginationLastPage()
-    {
-        await HardcodedCursorPaginationExampleLastPage();
-    }
 
     private async Task<InfinitePageData<TestEntity>> HardcodedCursorPaginationExampleFirstPage()
     {
@@ -103,19 +97,25 @@ public class DynamicVsHardcodedCursorPaginationBenchmarks
 
         return new InfinitePageData<TestEntity>(
             entities.Take(pageSize).ToList(),
-            null,
-            entities.Count > pageSize
+            lastCursor: null,
+            hasNextPage: entities.Count > pageSize
         );
     }
-    
+
+    [Benchmark]
+    public async Task HardcodedCursorPaginationLastPage()
+    {
+        await HardcodedCursorPaginationExampleLastPage();
+    }
+
     private async Task<InfinitePageData<TestEntity>> HardcodedCursorPaginationExampleLastPage()
     {
         const int pageSize = 10;
 
         var entities = await _dbContext.TestEntities
             .AsNoTracking()
-            .Where(e => string.Compare(e.Name, "B") > 0 || 
-                        (string.Equals(e.Name, "B") && e.Year < 2024) || 
+            .Where(e => string.Compare(e.Name, "B") > 0 ||
+                        (string.Equals(e.Name, "B") && e.Year < 2024) ||
                         (string.Equals(e.Name, "B") && e.Year == 2024 && e.Id < 2))
             .OrderBy(e => e.Name)
             .ThenByDescending(e => e.Year)
@@ -125,8 +125,8 @@ public class DynamicVsHardcodedCursorPaginationBenchmarks
 
         return new InfinitePageData<TestEntity>(
             entities.Take(pageSize).ToList(),
-            null,
-            entities.Count > pageSize
+            lastCursor: null,
+            hasNextPage: entities.Count > pageSize
         );
     }
 }
