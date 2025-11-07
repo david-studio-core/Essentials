@@ -1,4 +1,7 @@
-﻿namespace DavidStudio.Core.Auth.MessageHandlers;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
+
+namespace DavidStudio.Core.Auth.MessageHandlers;
 
 public class JwtAuthenticationMessageHandler(IHttpContextAccessor accessor) : DelegatingHandler
 {

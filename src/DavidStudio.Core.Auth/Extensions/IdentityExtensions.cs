@@ -2,6 +2,11 @@
 using DavidStudio.Core.Auth.Options;
 using DavidStudio.Core.Auth.PermissionAuthorization;
 using DavidStudio.Core.Auth.Swagger;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DavidStudio.Core.Auth.Extensions;
 

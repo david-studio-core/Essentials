@@ -1,4 +1,5 @@
 ﻿using DavidStudio.Core.Auth.Data;
+using Microsoft.AspNetCore.SignalR;
 
 namespace DavidStudio.Core.Auth.Hubs;
 

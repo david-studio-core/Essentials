@@ -1,4 +1,8 @@
-﻿namespace DavidStudio.Core.Auth.PermissionAuthorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+
+namespace DavidStudio.Core.Auth.PermissionAuthorization;
 
 public class PermissionAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
     : DefaultAuthorizationPolicyProvider(options)

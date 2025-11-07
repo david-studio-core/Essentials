@@ -1,4 +1,7 @@
-﻿using DavidStudio.Core.Auth.PermissionAuthorization;
+﻿
+using DavidStudio.Core.Auth.PermissionAuthorization;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace DavidStudio.Core.Auth.Swagger;
 

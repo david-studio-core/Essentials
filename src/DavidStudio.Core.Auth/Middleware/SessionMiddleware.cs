@@ -1,4 +1,5 @@
 using DavidStudio.Core.Auth.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace DavidStudio.Core.Auth.Middleware;
 

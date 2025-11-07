@@ -1,4 +1,6 @@
-﻿namespace DavidStudio.Core.Auth.PermissionAuthorization;
+﻿using Microsoft.AspNetCore.Authorization;
+
+namespace DavidStudio.Core.Auth.PermissionAuthorization;
 
 public class PermissionRequirement(string permission) : IAuthorizationRequirement
 {

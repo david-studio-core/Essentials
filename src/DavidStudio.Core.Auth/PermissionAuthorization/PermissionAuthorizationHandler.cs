@@ -1,4 +1,5 @@
 ﻿using DavidStudio.Core.Auth.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DavidStudio.Core.Auth.PermissionAuthorization;
 

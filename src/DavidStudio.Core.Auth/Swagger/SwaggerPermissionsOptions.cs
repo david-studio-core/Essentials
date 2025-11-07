@@ -1,3 +1,7 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
+
 namespace DavidStudio.Core.Auth.Swagger;
 
 public class SwaggerPermissionsOptions : IConfigureOptions<SwaggerGenOptions>

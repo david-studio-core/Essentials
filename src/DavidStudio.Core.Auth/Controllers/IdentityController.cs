@@ -1,6 +1,11 @@
-﻿namespace DavidStudio.Core.Auth.Controllers;
+﻿using DavidStudio.Core.Auth.Enums;
+using DavidStudio.Core.Auth.StronglyTypedIds;
+using DavidStudio.Core.Auth.Utilities;
+using Microsoft.AspNetCore.Mvc;
 
-public class ApplicationControllerBase : ControllerBase
+namespace DavidStudio.Core.Auth.Controllers;
+
+public class IdentityController : ControllerBase
 {
     protected IdentityId GetCurrentUserId() => HttpContext.User.GetId();
     protected UserSessionId GetCurrentUserSessionId() => HttpContext.User.GetSessionId();

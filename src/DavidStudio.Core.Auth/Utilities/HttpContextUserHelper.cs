@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using DavidStudio.Core.Auth.Data;
+using DavidStudio.Core.Auth.Enums;
+using DavidStudio.Core.Auth.StronglyTypedIds;
 
 namespace DavidStudio.Core.Auth.Utilities;
 
@@ -42,7 +44,7 @@ public static class HttpContextUserHelper
         var sex = user.FindFirstValue(ApplicationClaimTypes.Sex)
                   ?? throw new InvalidOperationException($"{ApplicationClaimTypes.Sex} is required");
 
-        return (Sex)Enum.Parse(typeof(Sex), sex, ignoreCase: true);
+        return Enum.Parse<Sex>(sex, ignoreCase: true);
     }
 
     public static string GetRequiredClaim(this ClaimsPrincipal user, string claimType)

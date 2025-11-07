@@ -97,7 +97,7 @@ public abstract class BaseReadonlyService<TRepository, TEntity, TKey, TReadDto>(
         if (entity is null)
         {
             return OperationResult<TReadDto>.Failure(
-                new OperationResultMessage(ErrorMessages.EntityNotFound, OperationResultSeverity.Error));
+                new OperationResultMessage(ErrorMessages.NotFound, OperationResultSeverity.Error));
         }
 
         var readDto = CacheHelper.CompileToReadDtoExpression(ToReadDto).Invoke(entity);

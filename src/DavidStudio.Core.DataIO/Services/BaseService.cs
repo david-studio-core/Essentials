@@ -46,7 +46,7 @@ public abstract class BaseService<TDbContext, TRepository, TEntity, TKey, TCreat
         if (entity is null)
         {
             return OperationResult<TReadDto>.Failure(
-                new OperationResultMessage(ErrorMessages.EntityNotFound, OperationResultSeverity.Error));
+                new OperationResultMessage(ErrorMessages.NotFound, OperationResultSeverity.Error));
         }
 
         entity.Update(dto);
@@ -66,7 +66,7 @@ public abstract class BaseService<TDbContext, TRepository, TEntity, TKey, TCreat
         if (entity is null)
         {
             return OperationResult<TReadDto>.Failure(
-                new OperationResultMessage(ErrorMessages.EntityNotFound, OperationResultSeverity.Error));
+                new OperationResultMessage(ErrorMessages.NotFound, OperationResultSeverity.Error));
         }
 
         await Repository.DeleteAsync(entity.Id, cancellationToken: cancellationToken);
