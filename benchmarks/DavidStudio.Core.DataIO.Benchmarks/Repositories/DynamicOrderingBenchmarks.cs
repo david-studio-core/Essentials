@@ -75,45 +75,45 @@ public class DynamicOrderingBenchmarks
     {
         await HardcodedDynamicLinqCursorPaginationExample();
     }
-    
+
     private async Task<InfinitePageData<TestEntity>> HardcodedDynamicLinqCursorPaginationExample()
     {
         var options = new InfinitePageOptions(10, searchAfter: null);
-    
+
         var entities = await _dbContext.TestEntities
             .AsNoTracking()
             .OrderBy("id desc")
             .Take(options.Size)
             .ToListAsync();
-    
+
         return new InfinitePageData<TestEntity>(
             entities.Take(options.Size).ToList(),
             lastCursor: null,
             hasNextPage: entities.Count > options.Size
         );
     }
-    
+
     [Benchmark]
     public async Task HardcodedDynamicLinqOffsetPagination()
     {
         await HardcodedDynamicLinqOffsetPaginationExample();
     }
-    
+
     private async Task<PageData<TestEntity>> HardcodedDynamicLinqOffsetPaginationExample()
     {
         var options = new PageOptions(1, 10);
-    
+
         var query = _dbContext.TestEntities
             .AsNoTracking()
             .OrderBy("id desc");
-    
+
         var totalCount = await query.CountAsync();
-    
+
         var entities = await query
             .Skip((options.Page - 1) * options.Size)
             .Take(options.Size)
             .ToListAsync();
-    
+
         return new PageData<TestEntity>(
             entities,
             totalCount,

@@ -49,7 +49,7 @@ public class DynamicCursorPaginationBenchmarks
     public async Task DynamicCursorPaginationFirstPage()
     {
         await _testRepository.GetAllAsync(
-            options: new InfinitePageOptions(10, searchAfter: null),
+            options: new InfinitePageOptions(1, searchAfter: null),
             orderBy:
             [
                 e => e.Name,
@@ -85,20 +85,34 @@ public class DynamicCursorPaginationBenchmarks
 
     private async Task<InfinitePageData<TestEntity>> HardcodedCursorPaginationExampleFirstPage()
     {
-        const int pageSize = 10;
+        const int pageSize = 1;
 
-        var entities = await _dbContext.TestEntities
+        var ordered = _dbContext.TestEntities
             .AsNoTracking()
             .OrderBy(e => e.Name)
             .ThenByDescending(e => e.Year)
-            .ThenByDescending(e => e.Id)
+            .ThenByDescending(e => e.Id);
+
+        var entities = await ordered
             .Take(pageSize + 1)
             .ToListAsync();
 
+        var hasMore = entities.Count > pageSize;
+        DynamicCursor? nextCursor = null;
+        if (hasMore)
+        {
+            var nextValues = await ordered
+                .Skip(pageSize - 1)
+                .Select(e => new object[] { e.Name, e.Year, e.Id })
+                .FirstAsync();
+
+            nextCursor = new DynamicCursor(nextValues);
+        }
+
         return new InfinitePageData<TestEntity>(
             entities.Take(pageSize).ToList(),
-            lastCursor: null,
-            hasNextPage: entities.Count > pageSize
+            lastCursor: nextCursor,
+            hasNextPage: hasMore
         );
     }
 

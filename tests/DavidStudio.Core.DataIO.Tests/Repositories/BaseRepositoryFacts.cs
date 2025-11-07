@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using DavidStudio.Core.DataIO.Entities;
+using DavidStudio.Core.DataIO.Helpers;
 using DavidStudio.Core.DataIO.Repositories;
 using DavidStudio.Core.DataIO.Services;
 using DavidStudio.Core.Pagination;
@@ -26,40 +27,32 @@ public class BaseRepositoryFacts : IAsyncLifetime
         return _msSql.DisposeAsync().AsTask();
     }
 
-    private protected class TestEntity : Entity<int>
+    private protected class Product : Entity<int>
     {
         public string Name { get; set; } = null!;
-        public int Year { get; set; }
+
+        public ManufacturingInfo ManufacturingInfo { get; set; } = null!;
     }
 
-    private protected record TestEntityReadDto(int Id, string Name, int Year);
-
-    private protected class TestEntityMapper
+    private protected class ManufacturingInfo : Entity<int>
     {
-        public static TestEntityReadDto ToReadDto(TestEntity entity)
-        {
-            return new TestEntityReadDto(entity.Id, entity.Name, entity.Year);
-        }
+        public int Year { get; set; }
+
+        public int ProductId { get; set; }
+        public Product Product { get; set; } = null!;
     }
 
     private protected class TestDbContext(DbContextOptions<TestDbContext> options)
         : DbContext(options)
     {
-        public DbSet<TestEntity> TestEntities { get; init; } = null!;
+        public DbSet<Product> Products { get; init; } = null!;
+        public DbSet<ManufacturingInfo> ManufacturingInfos { get; init; } = null!;
     }
 
-    private protected interface ITestRepository : IBaseRepository<TestEntity, int>;
+    private protected interface IProductsRepo : IBaseRepository<Product, int>;
 
-    private protected interface ITestService : IBaseReadonlyService<TestEntity, int, TestEntityReadDto>;
-
-    private protected class TestRepository(TestDbContext context)
-        : BaseRepository<TestEntity, int>(context), ITestRepository;
-
-    private protected class TestService(ITestRepository repository)
-        : BaseReadonlyService<ITestRepository, TestEntity, int, TestEntityReadDto>(repository), ITestService
-    {
-        protected override Expression<Func<TestEntity, TestEntityReadDto>> ToReadDto => e => new TestEntityReadDto(e.Id, e.Name, e.Year);
-    }
+    private protected class ProductsRepo(TestDbContext context)
+        : BaseRepository<Product, int>(context), IProductsRepo;
 
     // TODO: Transform into complex scenarios
     [Fact]
@@ -79,313 +72,196 @@ public class BaseRepositoryFacts : IAsyncLifetime
         await dbContext.Database.EnsureDeletedAsync();
         await dbContext.Database.EnsureCreatedAsync();
 
-        var a = new TestEntity
+        var iPhone15 = new Product
         {
-            Name = "A",
-            Year = 2022
-        };
-        var b1 = new TestEntity
-        {
-            Name = "B",
-            Year = 2024
-        };
-        var b2 = new TestEntity
-        {
-            Name = "B",
-            Year = 2023
-        };
-        var c = new TestEntity
-        {
-            Name = "C",
-            Year = 2024
+            Name = "iPhone 15",
+            ManufacturingInfo = new ManufacturingInfo
+            {
+                Year = 2023
+            }
         };
 
-        await dbContext.TestEntities.AddRangeAsync(a, b1, b2, c);
+        var iPhone16 = new Product
+        {
+            Name = "iPhone 16",
+            ManufacturingInfo = new ManufacturingInfo
+            {
+                Year = 2024
+            }
+        };
 
-        // var a = new TestEntity
-        // {
-        //     Name = "A",
-        //     Year = 2022
-        // };
-        // var b = new TestEntity
-        // {
-        //     Name = "B",
-        //     Year = 2024
-        // };
-        // var c = new TestEntity
-        // {
-        //     Name = "C",
-        //     Year = 2023
-        // };
-        //
-        // await dbContext.TestEntities.AddRangeAsync(a, b, c);
+        var iPhone17 = new Product
+        {
+            Name = "iPhone 17",
+            ManufacturingInfo = new ManufacturingInfo
+            {
+                Year = 2025
+            }
+        };
 
+        await dbContext.Products.AddRangeAsync(iPhone15, iPhone16, iPhone17);
         await dbContext.SaveChangesAsync();
 
-        ITestRepository repository = new TestRepository(dbContext);
+        IProductsRepo repository = new ProductsRepo(dbContext);
 
         // Act
-        var result = await repository.GetAllAsync(
+        var result1 = await repository.GetAllAsync(
+            options: new PageOptions(1, 10),
+            orderByString: "ManufacturingInfo.Year desc, Id desc",
+            selector: e => e.Name
+        );
+
+        var result2 = await repository.GetAllAsync(
+            // options: new InfinitePageOptions(1, searchAfterToken: "WyJCIiwyMDI0LDJd"),
+            options: new InfinitePageOptions(1, searchAfter: new DynamicCursor([2024, 2])),
+            orderBy:
+            [
+                e => e.ManufacturingInfo.Year,
+                o => o.Id
+            ],
+            isDescending: [true, true],
+            selector: e => new { e.Id, e.Name, e.ManufacturingInfo.Year },
+            // selector: e => e,
+            include: i => i.Include(p => p.ManufacturingInfo)
+        );
+
+        var result3 = await repository.GetAllAsync(
             // options: new InfinitePageOptions(1, searchAfterToken: "WyJCIiwyMDI0LDJd"),
             options: new InfinitePageOptions(1, searchAfterToken: null),
             orderBy:
             [
-                e => e.Name,
-                e => e.Year,
+                e => e.ManufacturingInfo.Year,
                 o => o.Id
             ],
-            isDescending: [false, true, true],
-            // isDescending: [false],
-            selector: e => e.Name
+            isDescending: [true, true],
+            selector: e => new { e.Id, e.Name, ManufacturingYear = e.ManufacturingInfo.Year },
+            // selector: e => e,
+            include: i => i.Include(p => p.ManufacturingInfo)
         );
 
-        // Assert
-        Assert.Equal(4, await dbContext.TestEntities.CountAsync());
-    }
-
-    // TODO: Transform into complex scenarios
-    [Fact]
-    public async Task Temp2()
-    {
-        // Arrange
-        var builder = new SqlConnectionStringBuilder(_msSql.GetConnectionString())
-        {
-            InitialCatalog = $"TestDb_{Guid.NewGuid():N}"
-        };
-        var dbContextOptions = new DbContextOptionsBuilder<TestDbContext>()
-            .UseLoggerFactory(Logger.TestsLoggerFactory)
-            .UseSqlServer(builder.ConnectionString)
-            .Options;
-
-        await using var dbContext = new TestDbContext(dbContextOptions);
-        await dbContext.Database.EnsureDeletedAsync();
-        await dbContext.Database.EnsureCreatedAsync();
-
-        var a = new TestEntity
-        {
-            Name = "A",
-            Year = 2022
-        };
-        var b1 = new TestEntity
-        {
-            Name = "B",
-            Year = 2024
-        };
-        var b2 = new TestEntity
-        {
-            Name = "B",
-            Year = 2023
-        };
-        var c = new TestEntity
-        {
-            Name = "C",
-            Year = 2024
-        };
-
-        await dbContext.TestEntities.AddRangeAsync(a, b1, b2, c);
-        await dbContext.SaveChangesAsync();
-
-        var repository = new TestRepository(dbContext);
-
-        // Act
-        var result = await repository.GetAllAsync(
-            selector: e => e.Name,
-            predicate: e => e.Id > 0 && e.Id < 10,
-            orderBy: o => o.OrderByDescending(e => e.Id)
-        );
-
-        // Assert
-        Assert.Equal(4, await dbContext.TestEntities.CountAsync());
-    }
-
-    // TODO: Transform into complex scenarios
-    [Fact]
-    public async Task Temp3()
-    {
-        // Arrange
-        var builder = new SqlConnectionStringBuilder(_msSql.GetConnectionString())
-        {
-            InitialCatalog = $"TestDb_{Guid.NewGuid():N}"
-        };
-        var dbContextOptions = new DbContextOptionsBuilder<TestDbContext>()
-            .UseLoggerFactory(Logger.TestsLoggerFactory)
-            .UseSqlServer(builder.ConnectionString)
-            .Options;
-
-        await using var dbContext = new TestDbContext(dbContextOptions);
-        await dbContext.Database.EnsureDeletedAsync();
-        await dbContext.Database.EnsureCreatedAsync();
-
-        var a = new TestEntity
-        {
-            Name = "A",
-            Year = 2022
-        };
-        var b1 = new TestEntity
-        {
-            Name = "B",
-            Year = 2024
-        };
-        var b2 = new TestEntity
-        {
-            Name = "B",
-            Year = 2023
-        };
-        var c = new TestEntity
-        {
-            Name = "C",
-            Year = 2024
-        };
-
-        await dbContext.TestEntities.AddRangeAsync(a, b1, b2, c);
-        await dbContext.SaveChangesAsync();
-
-        ITestRepository repository = new TestRepository(dbContext);
-
-        // Act
-        var result1 = await repository.GetAllAsync(
-            new PageOptions(1, 2),
-            selector: e => e.Name,
-            orderByString: "id desc"
-        );
-        
-        var result2 = await repository.GetAllAsync(
-            new PageOptions(2, 2),
-            selector: e => e.Name,
-            orderByString: "id desc"
-        );
-
-        // Assert
-        Assert.Equal(4, await dbContext.TestEntities.CountAsync());
-    }
-
-    // TODO: Transform into complex scenarios
-    [Fact]
-    public async Task Temp4()
-    {
-        // Arrange
-        var builder = new SqlConnectionStringBuilder(_msSql.GetConnectionString())
-        {
-            InitialCatalog = $"TestDb_{Guid.NewGuid():N}"
-        };
-        var dbContextOptions = new DbContextOptionsBuilder<TestDbContext>()
-            .UseLoggerFactory(Logger.TestsLoggerFactory)
-            .UseSqlServer(builder.ConnectionString)
-            .Options;
-
-        await using var dbContext = new TestDbContext(dbContextOptions);
-        await dbContext.Database.EnsureDeletedAsync();
-        await dbContext.Database.EnsureCreatedAsync();
-
-        var a = new TestEntity
-        {
-            Name = "A",
-            Year = 2022
-        };
-        var b1 = new TestEntity
-        {
-            Name = "B",
-            Year = 2024
-        };
-        var b2 = new TestEntity
-        {
-            Name = "B",
-            Year = 2023
-        };
-        var c = new TestEntity
-        {
-            Name = "C",
-            Year = 2024
-        };
-
-        await dbContext.TestEntities.AddRangeAsync(a, b1, b2, c);
-        await dbContext.SaveChangesAsync();
-
-        ITestRepository repository = new TestRepository(dbContext);
-
-        // Act
-        var result = await repository.GetAllAsync(
-            new InfinitePageOptions(size: 2, searchAfter: null),
-            selector: e => e.Name,
-            predicate: e => e.Id > 0 && e.Id < 10,
-            orderByString: "id2 desc"
-        );
-
-        // Assert
-        Assert.Equal(4, await dbContext.TestEntities.CountAsync());
-    }
-
-    // TODO: Transform into complex scenarios
-    [Fact]
-    public async Task Temp5()
-    {
-        // Arrange
-        var builder = new SqlConnectionStringBuilder(_msSql.GetConnectionString())
-        {
-            InitialCatalog = $"TestDb_{Guid.NewGuid():N}"
-        };
-        var dbContextOptions = new DbContextOptionsBuilder<TestDbContext>()
-            .UseLoggerFactory(Logger.TestsLoggerFactory)
-            .UseSqlServer(builder.ConnectionString)
-            .Options;
-
-        await using var dbContext = new TestDbContext(dbContextOptions);
-        await dbContext.Database.EnsureDeletedAsync();
-        await dbContext.Database.EnsureCreatedAsync();
-
-        var a = new TestEntity
-        {
-            Name = "A",
-            Year = 2022
-        };
-        var b1 = new TestEntity
-        {
-            Name = "B",
-            Year = 2024
-        };
-        var b2 = new TestEntity
-        {
-            Name = "B",
-            Year = 2023
-        };
-        var c = new TestEntity
-        {
-            Name = "C",
-            Year = 2024
-        };
-
-        await dbContext.TestEntities.AddRangeAsync(a, b1, b2, c);
-        await dbContext.SaveChangesAsync();
-
-        ITestRepository repository = new TestRepository(dbContext);
-        ITestService service = new TestService(repository);
-
-        // Act
-        var result = await service.GetAllAsync(
-            new PageOptions(page: 1, size: 2),
-            orderBy: "id desc",
-            // allowedToOrderBy: null
-            allowedToOrderBy:
+        var result4 = await repository.GetAllAsync(
+            // options: new InfinitePageOptions(1, searchAfterToken: "WyJCIiwyMDI0LDJd"),
+            options: new InfinitePageOptions(1, searchAfterToken: null),
+            orderBy:
             [
-                e => e.Name,
-                e => e.Year,
-                e => e.Id
-            ]
+                e => e.ManufacturingInfo.Year,
+                o => o.Id
+            ],
+            isDescending: [true, true],
+            selector: e => new TestEntity { Id = e.Id, Name = e.Name, Year3 = e.ManufacturingInfo.Year },
+            // selector: e => e,
+            include: i => i.Include(p => p.ManufacturingInfo)
         );
-        
-        var result2 = await service.GetAllAsync(
-            new InfinitePageOptions(size: 2, searchAfter: null),
-            orderBy: "id desc",
-            // allowedToOrderBy: null
-            allowedToOrderBy:
-            [
-                e => e.Name,
-                e => e.Year,
-                e => e.Id
-            ]
+
+        var result5 = await repository.GetAllAsync(
+            // options: new InfinitePageOptions(1, searchAfterToken: "WyJCIiwyMDI0LDJd"),
+            options: new InfinitePageOptions(1, searchAfterToken: null),
+            orderByString: "ManufacturingInfo.Year desc, Id desc",
+            selector: e => new { e.Name, e.ManufacturingInfo.Year },
+            include: i => i.Include(p => p.ManufacturingInfo)
         );
 
         // Assert
-        Assert.Equal(4, await dbContext.TestEntities.CountAsync());
+        var data = await dbContext.Products.AsNoTracking().Include(e => e.ManufacturingInfo).ToListAsync();
+
+        Assert.Equal(3, await dbContext.Products.CountAsync());
+        Assert.Equal(3, await dbContext.ManufacturingInfos.CountAsync());
+    }
+
+    private class A
+    {
+        public B B { get; set; } = null!;
+    }
+
+    private class B
+    {
+        public C C { get; set; } = null!;
+    }
+
+    private class C
+    {
+        public string Name { get; set; } = null!;
+        public int Year { get; set; }
+    }
+
+    private class TestEntity
+    {
+        public TestEntity() { }
+
+        public TestEntity(int id, int year2, string name)
+        {
+            Year3 = year2;
+            Id = id;
+            Name = name;
+        }
+
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public int Year3 { get; set; }
+    }
+
+    [Fact]
+    public void Temp2()
+    {
+        var a = new A
+        {
+            B = new B
+            {
+                C = new C
+                {
+                    Name = "C's name",
+                    Year = 2023
+                }
+            }
+        };
+
+        // var name = ReflectionHelper.GetPropertyValue(a, "B.C.Name");
+        //
+        // var res = DynamicOrderingHelper.Validate<A>("B.C.Name desc",
+        // [
+        //     e => e.B.C.Year,
+        //     e => e.B.C.Name
+        // ]);
+
+        // var str1 = ExpressionPropertyHelper.GetPropertyPath<A>(e => e.B.C.Name);
+        // var str2 = ExpressionPropertyHelper.GetPropertyPath<A>(e => e.B.C.Year);
+        // var str3 = ExpressionPropertyHelper.GetPropertyPath<A>(e => e.B);
+
+        Expression<Func<A, object>> selector1 =
+            e => new { Id = 1, e.B.C.Name, e.B.C.Year };
+
+        Expression<Func<A, object>> selector2 =
+            e => new { Id = 1, e.B.C.Name, Year2 = e.B.C.Year };
+
+        Expression<Func<A, object>> selector3 =
+            e => e;
+
+        Expression<Func<A, TestEntity>> selector4 =
+            e => new TestEntity { Id = 1, Name = e.B.C.Name, Year3 = e.B.C.Year };
+
+        Expression<Func<A, TestEntity>> selector5 =
+            e => new TestEntity(1, e.B.C.Year, e.B.C.Name);
+
+        Expression<Func<A, object>> selector6 =
+            e => e.B.C.Name;
+
+        Expression<Func<A, object>> selector7 =
+            e => e.B.C.Year;
+
+        // var s1 = ExpressionPropertyHelper.GetSelectorPropertyPaths(selector1);
+        // var s2 = ExpressionPropertyHelper.GetSelectorPropertyPaths(selector2);
+        // // var s3 = ExpressionPropertyHelper.GetSelectorPropertyPaths(selector3);
+        // var s4 = ExpressionPropertyHelper.GetSelectorPropertyPaths(selector4);
+        // var s5 = ExpressionPropertyHelper.GetSelectorPropertyPaths(selector5);
+        // var s6 = ExpressionPropertyHelper.GetSelectorPropertyPaths(selector6);
+        // var s7 = ExpressionPropertyHelper.GetSelectorPropertyPaths(selector7);
+
+        // var s1d = ExpressionPropertyHelper.DeconstructSelector(selector1);
+        // var s2d = ExpressionPropertyHelper.DeconstructSelector(selector2);
+        // var s3d = ExpressionPropertyHelper.DeconstructSelector(selector3);
+        // var s4d = ExpressionPropertyHelper.DeconstructSelector(selector4);
+        // var s5d = ExpressionPropertyHelper.DeconstructSelector(selector5);
+        // var s6d = ExpressionPropertyHelper.DeconstructSelector(selector6);
+        // var s7d = ExpressionPropertyHelper.DeconstructSelector(selector7);
     }
 }

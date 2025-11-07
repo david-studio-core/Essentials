@@ -34,7 +34,7 @@ public static class DynamicOrderingQueryBuilder
         List<bool> isDescending = [];
 
         var parameter = Expression.Parameter(typeof(TEntity), "e");
-        var orderParams = orderBy.Trim().Split(',');
+        var orderParams = orderBy.Trim().Split(',').Select(p => p.Trim());
 
         foreach (var param in orderParams)
         {
@@ -43,7 +43,10 @@ public static class DynamicOrderingQueryBuilder
 
             var orderByProperty = param.Split(' ')[0];
 
-            var propertyExpression = Expression.Property(parameter, orderByProperty);
+            var propertyExpression = orderByProperty
+                .Split('.')
+                .Aggregate<string?, Expression>(parameter, Expression.PropertyOrField!);
+
             var propertyExpressionObject = Expression.Convert(propertyExpression, typeof(object));
             var lambda = Expression.Lambda<Func<TEntity, object>>(propertyExpressionObject, parameter);
 

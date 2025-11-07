@@ -14,7 +14,9 @@ public static class DynamicOrderingHelper
     /// </typeparam>
     /// <param name="orderBy">
     /// A comma-separated list of property names (optionally followed by sort direction)
-    /// used to define ordering, for example: <c>"name desc, year asc"</c>.
+    /// used to define ordering, for example: <c>"Name desc, Year asc"</c>.
+    /// It also can have nested property paths, for example: <c>ManufacturingInfo.Address.City</c>.
+    /// All properties should follow <c>PascalCase</c> style. This is a case-sensitive argument.
     /// </param>
     /// <param name="allowedProperties">
     /// An optional list of property expressions that define which entity properties are allowed
@@ -38,6 +40,9 @@ public static class DynamicOrderingHelper
     /// </list>
     /// </returns>
     /// <remarks>
+    /// <para>
+    /// All properties should follow <c>PascalCase</c> style in <paramref name="orderBy"/> argument. This is a case-sensitive argument.
+    /// </para>
     /// <para>
     /// The method trims and splits the <paramref name="orderBy"/> string by commas, then checks each
     /// ordering field name against the list of allowed properties or the entity's actual properties.
@@ -66,12 +71,8 @@ public static class DynamicOrderingHelper
 
             if (allowedProperties is not null)
             {
-                var propertyAllowed = allowedProperties.Any(a =>
-                {
-                    var propertyName = ExpressionPropertyHelper.GetPropertyName(a);
-                    var normalized = char.ToLowerInvariant(propertyName[0]) + propertyName[1..];
-                    return normalized == orderingProperty;
-                });
+                var propertyAllowed =
+                    allowedProperties.Any(a => ExpressionPropertyHelper.GetPropertyPath(a) == orderingProperty);
 
                 if (!propertyAllowed)
                 {
@@ -92,7 +93,7 @@ public static class DynamicOrderingHelper
 
         return OperationResult.Success();
     }
-    
+
     public static IOrderedQueryable<TEntity> Apply<TEntity>(IQueryable<TEntity> query,
         IReadOnlyList<Expression<Func<TEntity, object>>> orderBy,
         bool[] isDescending)

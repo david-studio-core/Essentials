@@ -24,11 +24,11 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity, TResult>(IQueryable<T
 
         return this;
     }
-    
-    public new InfiniteScrollPaginationQueryBuilder<TEntity, TResult> WithOrdering(string  orderBy)
+
+    public new InfiniteScrollPaginationQueryBuilder<TEntity, TResult> WithOrdering(string orderBy)
     {
         var (orderByExpressions, isDescending) = DynamicOrderingQueryBuilder.Build<TEntity>(orderBy);
-        
+
         _orderBy = orderByExpressions;
         _isDescending = isDescending;
 
@@ -75,7 +75,7 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity, TResult>(IQueryable<T
         {
             nextCursor =
                 await InfiniteScrollPaginationDynamicCursorBuilder.BuildNextCursorAsync(_pageOptions, _orderBy!,
-                    _selector!, ordered, temporaryResults, cancellationToken);
+                    ordered, cancellationToken);
         }
 
         return new InfinitePageData<TResult>(

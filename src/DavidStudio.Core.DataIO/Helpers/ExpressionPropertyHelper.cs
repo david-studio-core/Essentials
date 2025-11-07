@@ -4,45 +4,25 @@ namespace DavidStudio.Core.DataIO.Helpers;
 
 public static class ExpressionPropertyHelper
 {
-    public static bool AllOrderByFieldsExistInSelector<TEntity, TResult>(
-        IReadOnlyList<Expression<Func<TEntity, object>>> orderBy,
-        Expression<Func<TEntity, TResult>> selector)
-    {
-        if (selector.Parameters[0] == selector.Body)
-            return true;
-
-        var orderByProps = orderBy
-            .Select(GetPropertyName)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var selectorProps = GetSelectorPropertyNames(selector)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        return orderByProps.All(selectorProps.Contains);
-    }
-
-    public static string GetPropertyName<TEntity>(Expression<Func<TEntity, object>> expression)
+    public static string GetPropertyPath<TEntity>(Expression<Func<TEntity, object>> expression)
     {
         var body = expression.Body;
 
         if (body is UnaryExpression { NodeType: ExpressionType.Convert } unary)
             body = unary.Operand;
 
-        if (body is MemberExpression member)
-            return member.Member.Name;
+        if (body is not MemberExpression member)
+            throw new InvalidOperationException($"Unsupported expression: {expression}");
 
-        throw new InvalidOperationException($"Unsupported expression: {expression}");
-    }
+        var members = new Stack<string>();
+        var currentMember = member;
 
-    public static IEnumerable<string> GetSelectorPropertyNames<TEntity, TResult>(
-        Expression<Func<TEntity, TResult>> selector)
-    {
-        return selector.Body switch
+        while (currentMember is not null)
         {
-            NewExpression newExpr => newExpr.Members?.Select(m => m.Name) ?? [],
-            MemberInitExpression initExpr => initExpr.Bindings.Select(b => b.Member.Name),
-            MemberExpression member => [member.Member.Name],
-            _ => throw new InvalidOperationException($"Unsupported expression: {selector}")
-        };
+            members.Push(currentMember.Member.Name);
+            currentMember = currentMember.Expression as MemberExpression;
+        }
+
+        return string.Join('.', members);
     }
 }
