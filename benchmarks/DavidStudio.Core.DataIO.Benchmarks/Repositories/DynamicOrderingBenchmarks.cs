@@ -88,7 +88,7 @@ public class DynamicOrderingBenchmarks
 
         return new InfinitePageData<TestEntity>(
             entities.Take(options.Size).ToList(),
-            lastCursor: null,
+            nextCursor: null,
             hasNextPage: entities.Count > options.Size
         );
     }
@@ -139,7 +139,7 @@ public class DynamicOrderingBenchmarks
 
         return new InfinitePageData<TestEntity>(
             entities.Take(options.Size).ToList(),
-            lastCursor: null,
+            nextCursor: null,
             hasNextPage: entities.Count > options.Size
         );
     }

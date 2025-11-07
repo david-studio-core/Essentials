@@ -111,7 +111,7 @@ public class DynamicCursorPaginationBenchmarks
 
         return new InfinitePageData<TestEntity>(
             entities.Take(pageSize).ToList(),
-            lastCursor: nextCursor,
+            nextCursor: nextCursor,
             hasNextPage: hasMore
         );
     }
@@ -139,7 +139,7 @@ public class DynamicCursorPaginationBenchmarks
 
         return new InfinitePageData<TestEntity>(
             entities.Take(pageSize).ToList(),
-            lastCursor: null,
+            nextCursor: null,
             hasNextPage: entities.Count > pageSize
         );
     }

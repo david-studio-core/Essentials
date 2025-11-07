@@ -1,7 +1,7 @@
 namespace DavidStudio.Core.Pagination;
 
-public enum ErrorMessages
+public static class ErrorMessages
 {
-    PageNumberShouldBeGreaterThanZero,
-    PageSizeShouldBeGreaterThanZero
+    public const string PageNumberShouldBeGreaterThanZero = nameof(PageNumberShouldBeGreaterThanZero);
+    public const string PageSizeShouldBeGreaterThanZero = nameof(PageSizeShouldBeGreaterThanZero);
 }
