@@ -11,6 +11,22 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace DavidStudio.Core.Swagger.Configurations;
 
+/// <summary>
+/// Configures default Swagger generation options for an ASP.NET Core application, including API versioning, tagging, 
+/// action ordering, and schema filters.
+/// </summary>
+/// <remarks>
+/// This class implements <see cref="IConfigureOptions{SwaggerGenOptions}"/> and is designed to be used with <see cref="SwaggerGenOptions"/>.
+/// It automatically sets up:
+/// <list type="bullet">
+/// <item>Swagger documents for all API versions provided by <see cref="IApiVersionDescriptionProvider"/>.</item>
+/// <item>Action tagging by controller name.</item>
+/// <item>Custom controller ordering via <see cref="SwaggerControllerOrder{TController}"/>.</item>
+/// <item>Schema filtering for "strongly-typed" ID types using <see cref="SwaggerStrongIdFilter"/>.</item>
+/// </list>
+/// </remarks>
+/// <param name="provider">The API version description provider used to enumerate available API versions.</param>
+/// <param name="title">The title to display in Swagger UI for all API versions.</param>
 public class DefaultSwaggerOptions(IApiVersionDescriptionProvider provider, string title)
     : IConfigureOptions<SwaggerGenOptions>
 {
