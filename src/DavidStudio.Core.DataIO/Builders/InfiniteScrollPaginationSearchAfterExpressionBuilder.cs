@@ -3,8 +3,29 @@ using DavidStudio.Core.DataIO.Expressions;
 
 namespace DavidStudio.Core.DataIO.Builders;
 
+/// <summary>
+/// Builds a dynamic "search-after" predicate for infinite scroll pagination
+/// based on multi-field ordering and the last fetched values.
+/// </summary>
 public static class InfiniteScrollPaginationSearchAfterExpressionBuilder
 {
+    /// <summary>
+    /// Builds the search-after predicate expression for a given entity type.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type being queried.</typeparam>
+    /// <param name="orderBy">The collection of ordering expressions.</param>
+    /// <param name="isDescending">
+    /// A boolean array indicating whether each ordering expression is descending.
+    /// Must match the length of <paramref name="orderBy"/>.
+    /// </param>
+    /// <param name="searchAfterValues">
+    /// An array of values representing the last entity fetched in the previous page.
+    /// Used to compute the "after" filter for the next page.
+    /// </param>
+    /// <returns>
+    /// An <see cref="Expression{Func{TEntity, bool}}"/> that can be used to filter entities
+    /// after the last fetched record.
+    /// </returns>
     public static Expression<Func<TEntity, bool>> Build<TEntity>(
         IReadOnlyList<Expression<Func<TEntity, object>>> orderBy,
         bool[] isDescending,
@@ -34,11 +55,23 @@ public static class InfiniteScrollPaginationSearchAfterExpressionBuilder
         return Expression.Lambda<Func<TEntity, bool>>(filter!, parameter);
     }
 
+    /// <summary>
+    /// Removes any conversion wrappers from the expression body, e.g. <c>Convert(x)</c> to get the underlying member.
+    /// </summary>
+    /// <param name="body">The expression body to unwrap.</param>
+    /// <returns>The unwrapped expression.</returns>
     private static Expression UnWrap(Expression body)
         => body is UnaryExpression { NodeType: ExpressionType.Convert } unary
             ? unary.Operand
             : body;
 
+    /// <summary>
+    /// Builds a comparison expression between an entity member and a constant value.
+    /// </summary>
+    /// <param name="orderMember">The expression representing the entity property.</param>
+    /// <param name="orderValue">The constant value to compare against.</param>
+    /// <param name="asc">Whether the comparison is ascending (<see langword="true"/> for ascending, <see langword="false"/> for descending).</param>
+    /// <returns>A <see cref="BinaryExpression"/> representing the comparison.</returns>
     private static BinaryExpression BuildComparison(Expression orderMember, Expression orderValue, bool asc)
     {
         if (orderMember.Type == typeof(string))
@@ -56,6 +89,16 @@ public static class InfiniteScrollPaginationSearchAfterExpressionBuilder
             : Expression.LessThan(orderMember, orderValue);
     }
 
+    /// <summary>
+    /// Builds a combined equality expression for all previous ordering fields,
+    /// ensuring that the current comparison applies only when previous fields match.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type being queried.</typeparam>
+    /// <param name="orderBy">The collection of ordering expressions.</param>
+    /// <param name="upToIndex">The index of the current ordering expression.</param>
+    /// <param name="searchAfterValues">The values to compare against for previous fields.</param>
+    /// <param name="parameter">The parameter expression for the entity.</param>
+    /// <returns>An <see cref="Expression"/> representing the combined equality of previous fields.</returns>
     private static Expression BuildPreviousEquals<TEntity>(IReadOnlyList<Expression<Func<TEntity, object>>> orderBy,
         int upToIndex,
         object?[] searchAfterValues,

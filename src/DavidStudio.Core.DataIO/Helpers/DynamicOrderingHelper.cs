@@ -3,6 +3,9 @@ using DavidStudio.Core.Results;
 
 namespace DavidStudio.Core.DataIO.Helpers;
 
+/// <summary>
+/// Provides helper methods for dynamic sorting.
+/// </summary>
 public static class DynamicOrderingHelper
 {
     /// <summary>
@@ -72,7 +75,7 @@ public static class DynamicOrderingHelper
             if (allowedProperties is not null)
             {
                 var propertyAllowed =
-                    allowedProperties.Any(a => ExpressionPropertyHelper.GetPropertyPath(a) == orderingProperty);
+                    allowedProperties.Any(a => ExpressionsHelper.GetPropertyPath(a) == orderingProperty);
 
                 if (!propertyAllowed)
                 {
@@ -94,6 +97,18 @@ public static class DynamicOrderingHelper
         return OperationResult.Success();
     }
 
+    /// <summary>
+    /// Applies multiple ordering expressions to the specified <see cref="IQueryable{T}"/>.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entities in the query.</typeparam>
+    /// <param name="query">The query to apply ordering to.</param>
+    /// <param name="orderBy">A list of expressions specifying the properties to order by.</param>
+    /// <param name="isDescending">A boolean array indicating for each expression whether the ordering should be descending.</param>
+    /// <returns>An <see cref="IOrderedQueryable{TEntity}"/> representing the ordered query.</returns>
+    /// <remarks>
+    /// This method supports multi-level ordering: the first expression determines the primary order,
+    /// subsequent expressions are applied as secondary, tertiary, etc. ordering using <c>ThenBy</c> or <c>ThenByDescending</c>.
+    /// </remarks>
     public static IOrderedQueryable<TEntity> Apply<TEntity>(IQueryable<TEntity> query,
         IReadOnlyList<Expression<Func<TEntity, object>>> orderBy,
         bool[] isDescending)

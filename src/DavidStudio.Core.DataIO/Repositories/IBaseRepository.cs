@@ -72,7 +72,7 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="options">PaginationOptions to paginate result.</param>
     /// <param name="selector">The selector for projection.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
-    /// <param name="orderByString">A string which represents ordering. Ex. "Name asc, date desc, id desc"</param>
+    /// <param name="orderByString">A string which represents ordering. Ex. "Name asc, Date desc, Id desc"</param>
     /// <param name="include">A function to include navigation properties.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>

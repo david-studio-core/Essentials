@@ -30,7 +30,7 @@ public interface IBaseReadonlyService<TEntity, in TKey, TReadDto>
     /// Retrieves all entities using offset pagination and maps them to read DTOs.
     /// </summary>
     /// <param name="options">Pagination options for offset-based pagination.</param>
-    /// <param name="orderBy">Optional string specifying the column names and directions to order by. Ex. "name asc, date desc, id desc"</param>
+    /// <param name="orderBy">Optional string specifying the column names and directions to order by. Ex. "Name asc, Date desc, Id desc"</param>
     /// <param name="allowedToOrderBy">A list of allowed expressions to restrict orderable fields. If <c>null</c>, all fields are allowed to be using in <paramref name="orderBy"/>.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>
@@ -45,7 +45,7 @@ public interface IBaseReadonlyService<TEntity, in TKey, TReadDto>
     /// Retrieves all entities using cursor (infinite scroll) pagination and maps them to read DTOs.
     /// </summary>
     /// <param name="options">Pagination options for infinite scroll.</param>
-    /// <param name="orderBy">Optional string specifying the column names and directions to order by. Ex. "name asc, date desc, id desc"</param>
+    /// <param name="orderBy">Optional string specifying the column names and directions to order by. Ex. "Name asc, Date desc, Id desc"</param>
     /// <param name="allowedToOrderBy">A list of allowed expressions to restrict orderable fields. If <c>null</c>, all fields are allowed to be using in <paramref name="orderBy"/>.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>

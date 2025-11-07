@@ -2,31 +2,45 @@ using System.Linq.Expressions;
 
 namespace DavidStudio.Core.DataIO.Builders;
 
+/// <summary>
+/// Provides functionality to dynamically construct ordering expressions
+/// based on a textual representation of sorting parameters.
+/// </summary>
+/// <remarks>
+/// <para>
+/// This approach allows dynamic sorting without relying on reflection at runtime,
+/// while maintaining compatibility with Entity Framework Core's expression translation.
+/// </para>
+/// </remarks>
 public static class DynamicOrderingQueryBuilder
 {
-    // TODO: Remove it after testing my own method of dynamic ordering 
-    //
-    // public static string BuildString(string orderBy)
-    // {
-    //     var orderParams = orderBy.Trim().Split(',');
-    //     var orderQueryBuilder = new StringBuilder();
-    //
-    //     foreach (var param in orderParams)
-    //     {
-    //         if (string.IsNullOrWhiteSpace(param))
-    //             continue;
-    //
-    //         var orderByProperty = param.Split(' ')[0];
-    //         var direction = param.EndsWith(" desc") ? "descending" : "ascending";
-    //
-    //         orderQueryBuilder.Append($"{orderByProperty} {direction}, ");
-    //     }
-    //
-    //     var orderQuery = orderQueryBuilder.ToString().TrimEnd(',', ' ');
-    //
-    //     return orderQuery;
-    // }
-
+    /// <summary>
+    /// Builds a collection of ordering expressions and direction flags
+    /// based on a string-based <paramref name="orderBy"/> definition.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type being queried.</typeparam>
+    /// <param name="orderBy">
+    /// A comma-separated list of property names, optionally followed by
+    /// <c>"desc"</c> to indicate descending order.  
+    /// For example: <c>"Name desc, CreatedAtUtc, Address.City desc"</c>.
+    /// </param>
+    /// <returns>
+    /// A tuple containing:
+    /// <list type="bullet">
+    /// <item>
+    /// <description>
+    /// <see cref="IReadOnlyList{T}"/> of <see cref="Expression{TDelegate}"/> representing
+    /// the ordering properties.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <description>
+    /// An array of <see cref="bool"/> values indicating whether each corresponding
+    /// ordering expression is descending.
+    /// </description>
+    /// </item>
+    /// </list>
+    /// </returns>
     public static (IReadOnlyList<Expression<Func<TEntity, object>>> orderBy, bool[] isDescending) Build<TEntity>(
         string orderBy)
     {
