@@ -5,6 +5,13 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace DavidStudio.Core.Auth.Swagger;
 
+/// <summary>
+/// Adds a description of required permissions to Swagger/OpenAPI documentation for controller actions.
+/// </summary>
+/// <remarks>
+/// This filter inspects the <see cref="HasPermissionAttribute"/> applied to actions or controllers,
+/// extracts the required permissions, and appends them to the operation description in Swagger.
+/// </remarks>
 public class OperationPermissionsFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)

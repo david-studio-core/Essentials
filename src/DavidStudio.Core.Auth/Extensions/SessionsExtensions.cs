@@ -9,8 +9,19 @@ using Microsoft.Extensions.Http.Resilience;
 
 namespace DavidStudio.Core.Auth.Extensions;
 
+/// <summary>
+/// Provides extension methods to configure and use session management in the application.
+/// </summary>
 public static class SessionsExtensions
 {
+    /// <summary>
+    /// Registers services required for session management, including <see cref="SessionsService"/>
+    /// and HTTP resilience policies.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
+    /// <param name="configuration">The <see cref="IConfiguration"/> containing session management settings.</param>
+    /// <returns>The <see cref="IServiceCollection"/> for chaining.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the Identity URL is not configured in <see cref="SessionsManagementOptions"/>.</exception>
     public static IServiceCollection AddSessionsManagement(this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -40,6 +51,12 @@ public static class SessionsExtensions
         return services;
     }
 
+    /// <summary>
+    /// Adds the <see cref="SessionMiddleware"/> to the application's request pipeline
+    /// to enable session management.
+    /// </summary>
+    /// <param name="builder">The <see cref="IApplicationBuilder"/> to configure.</param>
+    /// <returns>The <see cref="IApplicationBuilder"/> for chaining.</returns>
     public static IApplicationBuilder UseSessionsManagement(this IApplicationBuilder builder)
     {
         return builder.UseMiddleware<SessionMiddleware>();

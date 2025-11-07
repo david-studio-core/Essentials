@@ -10,14 +10,32 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace DavidStudio.Core.Auth.Extensions;
 
+/// <summary>
+/// Provides extension methods to configure JWT authentication and permission-based authorization.
+/// </summary>
 public static class IdentityExtensions
 {
+    /// <summary>
+    /// Configures JWT authentication for the application using settings from configuration.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add authentication to.</param>
+    /// <param name="configuration">The <see cref="IConfiguration"/> containing JWT settings.</param>
+    /// <returns>The <see cref="IServiceCollection"/> for chaining.</returns>
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services,
         IConfiguration configuration)
     {
         return AddJwtAuthentication(services, configuration, []);
     }
 
+    /// <summary>
+    /// Configures JWT authentication for the application using settings from configuration
+    /// and optionally enables token support for SignalR hubs.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add authentication to.</param>
+    /// <param name="configuration">The <see cref="IConfiguration"/> containing JWT settings.</param>
+    /// <param name="hubs">An array of SignalR hub paths for which JWT tokens should be read from HTTP headers.</param>
+    /// <returns>The <see cref="IServiceCollection"/> for chaining.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the JWT configuration section is missing.</exception>
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services,
         IConfiguration configuration, string[] hubs)
     {
@@ -85,6 +103,11 @@ public static class IdentityExtensions
         return services;
     }
 
+    /// <summary>
+    /// Registers permission-based authorization services for production use.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
+    /// <returns>The <see cref="IServiceCollection"/> for chaining.</returns>
     public static IServiceCollection AddPermissionAuthorization(this IServiceCollection services)
     {
         services.ConfigureOptions<SwaggerPermissionsOptions>();
@@ -95,6 +118,11 @@ public static class IdentityExtensions
         return services;
     }
 
+    /// <summary>
+    /// Registers stub permission-based authorization services for testing or development purposes.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
+    /// <returns>The <see cref="IServiceCollection"/> for chaining.</returns>
     public static IServiceCollection AddPermissionAuthorizationStub(this IServiceCollection services)
     {
         services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandlerStub>();
