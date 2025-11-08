@@ -8,13 +8,26 @@
 
     <PropertyGroup>
         <PackageId>DavidStudio.Core.Essentials</PackageId>
-        <Version>1.0.0</Version>
-        <Authors>David</Authors>
+        <Version>0.0.0-alpha1</Version>
+        <Authors>David Khachatryan</Authors>
         <Company>David Studio</Company>
+        <Copyright>Copyright (c) 2025 David Khachatryan (David Studio)</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <Product>Essentials</Product>
+        <Description>
+            A productivity library that accelerates .NET project scaffolding by providing ready-to-use features for
+            common application needs. Includes data I/O helpers and abstractions, authentication utilities,
+            OpenAPI/Swagger integration, pagination helpers, standardized result/response types, and general-purpose
+            utilities.
+        </Description>
+        <PackageIcon>logo.png</PackageIcon>
+        <PackageProjectUrl>https://github.com/david-studio-core/Essentials</PackageProjectUrl>
         <RepositoryUrl>https://github.com/david-studio-core/Essentials</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>DataIO Auth Swagger Pagination Results Utilities CRUD Repository Service Authentication Authorization Helpers Kit Instrumentation</PackageTags>
+
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <IncludeBuildOutput>false</IncludeBuildOutput>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,16 +36,15 @@
         <ProjectReference Include="..\DavidStudio.Core.Swagger\DavidStudio.Core.Swagger.csproj"/>
         <ProjectReference Include="..\DavidStudio.Core.Pagination\DavidStudio.Core.Pagination.csproj"/>
         <ProjectReference Include="..\DavidStudio.Core.Results\DavidStudio.Core.Results.csproj"/>
+        <ProjectReference Include="..\DavidStudio.Core.Utilities\DavidStudio.Core.Utilities.csproj"/>
     </ItemGroup>
 
-    <PropertyGroup>
-        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_AddTransitiveProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
-    </PropertyGroup>
+    <ItemGroup>
+        <None Include="logo.png" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
-    <Target Name="_AddTransitiveProjectReferencesToPackage">
-        <ItemGroup>
-            <PackageReference Include="@(ProjectReference->'%(PackageId)')" Version="0.0.0"/>
-        </ItemGroup>
-    </Target>
+    <ItemGroup>
+        <None Include="LICENSE.txt" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
 </Project>
