@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DavidStudio.Core.Essentials.CompleteSample.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251108191920_InitialMigration")]
+    [Migration("20251121175852_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -45,19 +45,19 @@ namespace DavidStudio.Core.Essentials.CompleteSample.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("f9100000-1652-b97c-675a-08de1efbb7c1"),
+                            Id = new Guid("e9a85b6d-b003-46af-ad15-69b1a6cbdd7c"),
                             IncorporationDateUtc = new DateTime(1976, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Apple"
                         },
                         new
                         {
-                            Id = new Guid("f9100000-1652-b97c-6aa2-08de1efbb7c1"),
+                            Id = new Guid("eaa85b6d-b003-46af-ad15-69b1a6cbdd7c"),
                             IncorporationDateUtc = new DateTime(1938, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Samsung"
                         },
                         new
                         {
-                            Id = new Guid("f9100100-1652-b97c-6aa2-08de1efbb7c1"),
+                            Id = new Guid("eba85b6d-b003-46af-ad15-69b1a6cbdd7c"),
                             IncorporationDateUtc = new DateTime(2010, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Xiaomi"
                         });
@@ -71,6 +71,9 @@ namespace DavidStudio.Core.Essentials.CompleteSample.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -79,6 +82,9 @@ namespace DavidStudio.Core.Essentials.CompleteSample.Migrations
 
                     b.Property<DateTime>("ModifiedAtUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ModifiedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -100,44 +106,48 @@ namespace DavidStudio.Core.Essentials.CompleteSample.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("f9100000-1652-b97c-70ce-08de1efbb7c1"),
-                            CreatedAtUtc = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = new Guid("eca85b6d-b003-46af-ad15-69b1a6cbdd7c"),
+                            CreatedAtUtc = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedByUserId = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
-                            ManufacturerId = new Guid("f9100000-1652-b97c-675a-08de1efbb7c1"),
-                            ModifiedAtUtc = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ManufacturerId = new Guid("e9a85b6d-b003-46af-ad15-69b1a6cbdd7c"),
+                            ModifiedAtUtc = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "iPhone 17",
                             Price = 1199m,
                             StockCount = 1000
                         },
                         new
                         {
-                            Id = new Guid("f9100000-1652-b97c-73ee-08de1efbb7c1"),
-                            CreatedAtUtc = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = new Guid("eda85b6d-b003-46af-ad15-69b1a6cbdd7c"),
+                            CreatedAtUtc = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedByUserId = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
-                            ManufacturerId = new Guid("f9100000-1652-b97c-675a-08de1efbb7c1"),
-                            ModifiedAtUtc = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ManufacturerId = new Guid("e9a85b6d-b003-46af-ad15-69b1a6cbdd7c"),
+                            ModifiedAtUtc = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "iPhone 16",
                             Price = 999m,
                             StockCount = 50
                         },
                         new
                         {
-                            Id = new Guid("f9100100-1652-b97c-73ee-08de1efbb7c1"),
-                            CreatedAtUtc = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = new Guid("eea85b6d-b003-46af-ad15-69b1a6cbdd7c"),
+                            CreatedAtUtc = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedByUserId = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
-                            ManufacturerId = new Guid("f9100000-1652-b97c-6aa2-08de1efbb7c1"),
-                            ModifiedAtUtc = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ManufacturerId = new Guid("eaa85b6d-b003-46af-ad15-69b1a6cbdd7c"),
+                            ModifiedAtUtc = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Samsung Galaxy S25",
-                            Price = 25m,
-                            StockCount = 1000000
+                            Price = 600m,
+                            StockCount = 25
                         },
                         new
                         {
-                            Id = new Guid("f9100200-1652-b97c-73ee-08de1efbb7c1"),
-                            CreatedAtUtc = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = new Guid("efa85b6d-b003-46af-ad15-69b1a6cbdd7c"),
+                            CreatedAtUtc = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedByUserId = new Guid("00000000-0000-0000-0000-000000000000"),
                             IsDeleted = false,
-                            ManufacturerId = new Guid("f9100100-1652-b97c-6aa2-08de1efbb7c1"),
-                            ModifiedAtUtc = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ManufacturerId = new Guid("eba85b6d-b003-46af-ad15-69b1a6cbdd7c"),
+                            ModifiedAtUtc = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Xiaomi 17 Pro Max",
                             Price = 1500m,
                             StockCount = 10

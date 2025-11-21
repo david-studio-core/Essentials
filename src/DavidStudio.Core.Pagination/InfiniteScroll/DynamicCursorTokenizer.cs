@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Numerics;
 using System.Text.Json;
 
 namespace DavidStudio.Core.Pagination.InfiniteScroll;
@@ -53,15 +55,64 @@ public static class DynamicCursorTokenizer
 
         return je.ValueKind switch
         {
-            JsonValueKind.Number => je.TryGetInt32(out var i) ? i :
-                je.TryGetInt64(out var l) ? l :
-                je.TryGetDecimal(out var d) ? d :
-                je.GetDouble(),
-            JsonValueKind.String => je.GetString(),
+            JsonValueKind.String => ConvertJsonString(je),
+            JsonValueKind.Number => ConvertJsonNumber(je),
             JsonValueKind.True => true,
             JsonValueKind.False => false,
             JsonValueKind.Null => null,
+            JsonValueKind.Undefined => null,
             _ => throw new NotSupportedException($"Unsupported JSON element {je.ValueKind}")
         };
+    }
+
+    private static object? ConvertJsonString(JsonElement je)
+    {
+        var s = je.GetString();
+
+        if (s is null)
+            return null;
+
+        if (Guid.TryParse(s, out var guid))
+            return guid;
+
+        if (DateTime.TryParse(s, null, DateTimeStyles.RoundtripKind, out var dt))
+            return dt;
+
+        if (DateOnly.TryParse(s, out var dateOnly))
+            return dateOnly;
+
+        if (TimeOnly.TryParse(s, out var timeOnly))
+            return timeOnly;
+
+        if (TimeSpan.TryParse(s, out var ts))
+            return ts;
+
+        if (s.Length == 1)
+            return s[0];
+
+        return s;
+    }
+
+    private static object ConvertJsonNumber(JsonElement je)
+    {
+        if (je.TryGetByte(out var b)) return b;
+        if (je.TryGetSByte(out var sb)) return sb;
+        if (je.TryGetInt16(out var s)) return s;
+        if (je.TryGetUInt16(out var us)) return us;
+        if (je.TryGetInt32(out var i)) return i;
+        if (je.TryGetUInt32(out var ui)) return ui;
+        if (je.TryGetInt64(out var l)) return l;
+        if (je.TryGetUInt64(out var ul)) return ul;
+
+        if (je.TryGetDecimal(out var dec))
+            return dec;
+
+        if (je.TryGetDouble(out var dbl))
+            return dbl;
+
+        if (BigInteger.TryParse(je.GetRawText(), out var big))
+            return big;
+
+        return je.GetRawText();
     }
 }

@@ -35,6 +35,8 @@ namespace DavidStudio.Core.Essentials.CompleteSample.Migrations
                     Price = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     StockCount = table.Column<int>(type: "int", nullable: false),
                     ManufacturerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ModifiedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -55,20 +57,20 @@ namespace DavidStudio.Core.Essentials.CompleteSample.Migrations
                 columns: new[] { "Id", "IncorporationDateUtc", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("f9100000-1652-b97c-675a-08de1efbb7c1"), new DateTime(1976, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Apple" },
-                    { new Guid("f9100000-1652-b97c-6aa2-08de1efbb7c1"), new DateTime(1938, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Samsung" },
-                    { new Guid("f9100100-1652-b97c-6aa2-08de1efbb7c1"), new DateTime(2010, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Xiaomi" }
+                    { new Guid("e9a85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(1976, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Apple" },
+                    { new Guid("eaa85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(1938, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Samsung" },
+                    { new Guid("eba85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(2010, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Xiaomi" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Products",
-                columns: new[] { "Id", "CreatedAtUtc", "IsDeleted", "ManufacturerId", "ModifiedAtUtc", "Name", "Price", "StockCount" },
+                columns: new[] { "Id", "CreatedAtUtc", "CreatedByUserId", "IsDeleted", "ManufacturerId", "ModifiedAtUtc", "ModifiedByUserId", "Name", "Price", "StockCount" },
                 values: new object[,]
                 {
-                    { new Guid("f9100000-1652-b97c-70ce-08de1efbb7c1"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, new Guid("f9100000-1652-b97c-675a-08de1efbb7c1"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "iPhone 17", 1199m, 1000 },
-                    { new Guid("f9100000-1652-b97c-73ee-08de1efbb7c1"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, new Guid("f9100000-1652-b97c-675a-08de1efbb7c1"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "iPhone 16", 999m, 50 },
-                    { new Guid("f9100100-1652-b97c-73ee-08de1efbb7c1"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, new Guid("f9100000-1652-b97c-6aa2-08de1efbb7c1"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Samsung Galaxy S25", 25m, 1000000 },
-                    { new Guid("f9100200-1652-b97c-73ee-08de1efbb7c1"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, new Guid("f9100100-1652-b97c-6aa2-08de1efbb7c1"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Xiaomi 17 Pro Max", 1500m, 10 }
+                    { new Guid("eca85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new Guid("00000000-0000-0000-0000-000000000000"), false, new Guid("e9a85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "iPhone 17", 1199m, 1000 },
+                    { new Guid("eda85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new Guid("00000000-0000-0000-0000-000000000000"), false, new Guid("e9a85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "iPhone 16", 999m, 50 },
+                    { new Guid("eea85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new Guid("00000000-0000-0000-0000-000000000000"), false, new Guid("eaa85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Samsung Galaxy S25", 600m, 25 },
+                    { new Guid("efa85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new Guid("00000000-0000-0000-0000-000000000000"), false, new Guid("eba85b6d-b003-46af-ad15-69b1a6cbdd7c"), new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Xiaomi 17 Pro Max", 1500m, 10 }
                 });
 
             migrationBuilder.CreateIndex(

@@ -6,7 +6,7 @@ namespace DavidStudio.Core.DataIO.Helpers;
 /// <summary>
 /// Provides caching in memory caching of internal library resources to improve performance in repeated operations.
 /// </summary>
-internal static class CacheHelper
+public static class CacheHelper
 {
     private static readonly ConcurrentDictionary<string, Delegate> CompiledExpressionsCache = new();
     private static readonly ConcurrentDictionary<Type, HashSet<string>> TypePropertiesCache = new();

@@ -74,6 +74,17 @@ public static class InfiniteScrollPaginationSearchAfterExpressionBuilder
     /// <returns>A <see cref="BinaryExpression"/> representing the comparison.</returns>
     private static BinaryExpression BuildComparison(Expression orderMember, Expression orderValue, bool asc)
     {
+        // Support for StronglyTypedId
+        if (orderMember.Type.Name.EndsWith("Id") && orderMember.Type != typeof(Guid))
+        {
+            var stronglyTypedId = Activator.CreateInstance(orderMember.Type, ((ConstantExpression)orderValue).Value);
+            var stronglyTypedIdExpression = Expression.Constant(stronglyTypedId);
+
+            return asc
+                ? Expression.GreaterThan(orderMember, stronglyTypedIdExpression)
+                : Expression.LessThan(orderMember, stronglyTypedIdExpression);
+        }
+
         if (orderMember.Type == typeof(string))
         {
             var compareMethod = typeof(string).GetMethod(nameof(string.Compare), [typeof(string), typeof(string)])!;
@@ -82,6 +93,14 @@ public static class InfiniteScrollPaginationSearchAfterExpressionBuilder
             return asc
                 ? Expression.GreaterThan(compareCall, Expression.Constant(0))
                 : Expression.LessThan(compareCall, Expression.Constant(0));
+        }
+
+        if (orderMember.Type == typeof(bool))
+        {
+            Expression entityProp = Expression.Equal(orderMember, Expression.Constant(asc));
+            Expression cursorProp = Expression.Equal(orderValue, Expression.Constant(!asc));
+
+            return Expression.And(entityProp, cursorProp);
         }
 
         return asc

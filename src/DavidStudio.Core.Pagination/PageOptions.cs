@@ -14,7 +14,7 @@ public record PageOptions
     /// </summary>
     [Required]
     [Range(1, int.MaxValue)]
-    public int Page { get; }
+    public int Page { get; init; }
 
     /// <summary>
     /// Gets the number of items per page.
@@ -22,12 +22,8 @@ public record PageOptions
     /// </summary>
     [Required]
     [Range(1, 100)]
-    public int Size { get; }
+    public int Size { get; init; }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PageOptions"/> class.
-    /// Parameterless constructor used for deserialization.
-    /// </summary>
     [JsonConstructor]
     public PageOptions() { }
 

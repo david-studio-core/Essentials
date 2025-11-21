@@ -1,8 +1,12 @@
+using DavidStudio.Core.Auth.StronglyTypedIds;
 using DavidStudio.Core.Essentials.CompleteSample.Dtos.Manufacturer;
 using DavidStudio.Core.Essentials.CompleteSample.Dtos.Product;
 using DavidStudio.Core.Essentials.CompleteSample.Entities;
+using DavidStudio.Core.Essentials.CompleteSample.Models.Product;
 using DavidStudio.Core.Essentials.CompleteSample.StronglyTypedIds;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DavidStudio.Core.Essentials.CompleteSample.Database;
 
@@ -18,55 +22,84 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-        var apple = Manufacturer.Create(new ManufacturerCreateDto
+        var apple = new Manufacturer
         {
+            Id = ManufacturerId.Parse("E9A85B6D-B003-46AF-AD15-69B1A6CBDD7C"),
             Name = "Apple",
             IncorporationDateUtc = new DateTime(1976, 1, 1)
-        });
+        };
 
-        var samsung = Manufacturer.Create(new ManufacturerCreateDto
+        var samsung = new Manufacturer
         {
+            Id = ManufacturerId.Parse("EAA85B6D-B003-46AF-AD15-69B1A6CBDD7C"),
             Name = "Samsung",
             IncorporationDateUtc = new DateTime(1938, 1, 1)
-        });
+        };
 
-        var xiaomi = Manufacturer.Create(new ManufacturerCreateDto
+        var xiaomi = new Manufacturer
         {
+            Id = ManufacturerId.Parse("EBA85B6D-B003-46AF-AD15-69B1A6CBDD7C"),
             Name = "Xiaomi",
             IncorporationDateUtc = new DateTime(2010, 1, 1)
-        });
+        };
 
-        var iPhone17 = Product.Create(new ProductCreateDto
+        var utcNow = new DateTime(2025, 11, 21);
+
+        var iPhone17 = new Product
         {
+            Id = ProductId.Parse("ECA85B6D-B003-46AF-AD15-69B1A6CBDD7C"),
             Name = "iPhone 17",
             Price = 1199,
             StockCount = 1000,
-            ManufacturerId = apple.Id
-        });
+            ManufacturerId = apple.Id,
+            CreatedByUserId = IdentityId.Empty,
+            ModifiedByUserId = null,
+            CreatedAtUtc = utcNow,
+            ModifiedAtUtc = utcNow,
+            IsDeleted = false
+        };
 
-        var iPhone16 = Product.Create(new ProductCreateDto
+        var iPhone16 = new Product
         {
+            Id = ProductId.Parse("EDA85B6D-B003-46AF-AD15-69B1A6CBDD7C"),
             Name = "iPhone 16",
             Price = 999,
             StockCount = 50,
-            ManufacturerId = apple.Id
-        });
+            ManufacturerId = apple.Id,
+            CreatedByUserId = IdentityId.Empty,
+            ModifiedByUserId = null,
+            CreatedAtUtc = utcNow,
+            ModifiedAtUtc = utcNow,
+            IsDeleted = false
+        };
 
-        var samsungGalaxyS25 = Product.Create(new ProductCreateDto
+        var samsungGalaxyS25 = new Product
         {
+            Id = ProductId.Parse("EEA85B6D-B003-46AF-AD15-69B1A6CBDD7C"),
             Name = "Samsung Galaxy S25",
-            Price = 25,
-            StockCount = 1_000_000,
-            ManufacturerId = samsung.Id
-        });
+            Price = 600,
+            StockCount = 25,
+            ManufacturerId = samsung.Id,
+            CreatedByUserId = IdentityId.Empty,
+            ModifiedByUserId = null,
+            CreatedAtUtc = utcNow,
+            ModifiedAtUtc = utcNow,
+            IsDeleted = false
+        };
 
-        var xiaomi17ProMax = Product.Create(new ProductCreateDto
+        var xiaomi17ProMax = new Product
         {
+            Id = ProductId.Parse("EFA85B6D-B003-46AF-AD15-69B1A6CBDD7C"),
             Name = "Xiaomi 17 Pro Max",
             Price = 1500,
             StockCount = 10,
-            ManufacturerId = xiaomi.Id
-        });
+            ManufacturerId = xiaomi.Id,
+            CreatedByUserId = IdentityId.Empty,
+            ModifiedByUserId = null,
+            CreatedAtUtc = utcNow,
+            ModifiedAtUtc = utcNow,
+            IsDeleted = false
+        };
 
         builder.Entity<Manufacturer>().HasData(apple, samsung, xiaomi);
         builder.Entity<Product>().HasData(iPhone17, iPhone16, samsungGalaxyS25, xiaomi17ProMax);
@@ -75,6 +108,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
+
+        configurationBuilder.Properties<IdentityId>().HaveConversion<IdentityId.EfCoreValueConverter>();
 
         configurationBuilder.Properties<ProductId>().HaveConversion<ProductId.EfCoreValueConverter>();
         configurationBuilder.Properties<ManufacturerId>().HaveConversion<ManufacturerId.EfCoreValueConverter>();

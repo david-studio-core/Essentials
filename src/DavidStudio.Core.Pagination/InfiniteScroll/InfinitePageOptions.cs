@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace DavidStudio.Core.Pagination.InfiniteScroll;
 
@@ -14,7 +15,7 @@ public record InfinitePageOptions
     /// </summary>
     [Required]
     [Range(1, 100)]
-    public int Size { get; }
+    public int Size { get; init; }
 
     /// <summary>
     /// Gets or sets the dynamic cursor used for fetching the next page.
@@ -28,7 +29,10 @@ public record InfinitePageOptions
     /// This property is not null when <see cref="SearchAfter"/> is null.
     /// </summary>
     [MemberNotNullWhen(returnValue: false, nameof(SearchAfter))]
-    public string? SearchAfterToken { get; }
+    public string? SearchAfterToken { get; init; }
+
+    [JsonConstructor]
+    public InfinitePageOptions() { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InfinitePageOptions"/> record using a dynamic cursor.

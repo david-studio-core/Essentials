@@ -113,16 +113,15 @@ public class BaseRepositoryFacts : IAsyncLifetime
 
         var result2 = await repository.GetAllAsync(
             // options: new InfinitePageOptions(1, searchAfterToken: "WyJCIiwyMDI0LDJd"),
-            options: new InfinitePageOptions(1, searchAfter: new DynamicCursor([2024, 2])),
+            options: new InfinitePageOptions(1, searchAfter: null),
             orderBy:
             [
                 e => e.ManufacturingInfo.Year,
                 o => o.Id
             ],
             isDescending: [true, true],
-            selector: e => new { e.Id, e.Name, e.ManufacturingInfo.Year },
+            selector: e => new { e.Id, e.Name, e.ManufacturingInfo.Year }
             // selector: e => e,
-            include: i => i.Include(p => p.ManufacturingInfo)
         );
 
         var result3 = await repository.GetAllAsync(

@@ -10,5 +10,7 @@ public class ProductEntityConfiguration : IEntityTypeConfiguration<Product>
     {
         builder.Property(p => p.Name).HasMaxLength(100);
         builder.Property(e => e.Price).HasColumnType("decimal(10,2)");
+
+        builder.HasQueryFilter(e => !e.IsDeleted);
     }
 }

@@ -13,6 +13,8 @@ public static class ProductMapper
             product.Price,
             product.StockCount,
             product.Manufacturer.ToReadDto(),
+            product.CreatedByUserId,
+            product.ModifiedByUserId,
             product.CreatedAtUtc,
             product.ModifiedAtUtc
         );

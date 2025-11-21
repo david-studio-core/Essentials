@@ -8,10 +8,8 @@ namespace DavidStudio.Core.Essentials.CompleteSample.Entities;
 public sealed class Manufacturer : Entity<ManufacturerId>,
     ISelfManageable<Manufacturer, ManufacturerCreateDto, ManufacturerUpdateDto>
 {
-    private Manufacturer() { }
-
-    public string Name { get; private set; } = null!;
-    public DateTime IncorporationDateUtc { get; private init; }
+    public string Name { get; set; } = null!;
+    public DateTime IncorporationDateUtc { get; init; }
 
     public static Manufacturer Create(ManufacturerCreateDto model)
     {

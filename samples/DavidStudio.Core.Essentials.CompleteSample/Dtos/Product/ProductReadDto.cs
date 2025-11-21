@@ -1,3 +1,4 @@
+using DavidStudio.Core.Auth.StronglyTypedIds;
 using DavidStudio.Core.Essentials.CompleteSample.Dtos.Manufacturer;
 using DavidStudio.Core.Essentials.CompleteSample.StronglyTypedIds;
 
@@ -9,6 +10,8 @@ public record ProductReadDto(
     decimal Price,
     int StockCount,
     ManufacturerReadDto Manufacturer,
+    IdentityId CreatedByUserId,
+    IdentityId? ModifiedByUserId,
     DateTime CreatedAtUtc,
     DateTime ModifiedAtUtc
 );

@@ -70,7 +70,7 @@ public static class DynamicOrderingHelper
             if (string.IsNullOrWhiteSpace(param))
                 continue;
 
-            var orderingProperty = param.Split(" ")[0];
+            var orderingProperty = param.Trim().Split(" ")[0];
 
             if (allowedProperties is not null)
             {
@@ -80,7 +80,7 @@ public static class DynamicOrderingHelper
                 if (!propertyAllowed)
                 {
                     return OperationResult.Failure(
-                        new OperationResultMessage($"Ordering parameter '{param}' is not allowed.",
+                        new OperationResultMessage($"Ordering parameter '{orderingProperty}' is not allowed.",
                             OperationResultSeverity.Error));
                 }
             }
@@ -89,7 +89,7 @@ public static class DynamicOrderingHelper
                 var fieldExists = entityProps!.Contains(orderingProperty);
                 if (!fieldExists)
                     return OperationResult.Failure(
-                        new OperationResultMessage($"Field '{param}' does not not exist.",
+                        new OperationResultMessage($"Field '{orderingProperty}' does not not exist.",
                             OperationResultSeverity.Error));
             }
         }

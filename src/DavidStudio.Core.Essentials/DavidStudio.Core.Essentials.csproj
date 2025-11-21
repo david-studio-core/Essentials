@@ -12,13 +12,12 @@
         <Authors>David Khachatryan</Authors>
         <Company>David Studio</Company>
         <Copyright>Copyright (c) 2025 David Khachatryan (David Studio)</Copyright>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <Product>Essentials</Product>
         <Description>
             A productivity library that accelerates .NET project scaffolding by providing ready-to-use features for
             common application needs. Includes data I/O helpers and abstractions, authentication utilities,
-            OpenAPI/Swagger integration, pagination helpers, standardized result/response types, and general-purpose
+            OpenAPI/Swagger integration features, pagination helpers, standardized result/response types, and general-purpose
             utilities.
         </Description>
         <PackageIcon>logo.png</PackageIcon>

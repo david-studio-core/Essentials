@@ -1,5 +1,6 @@
+using DavidStudio.Core.Auth.StronglyTypedIds;
 using DavidStudio.Core.DataIO.Entities;
-using DavidStudio.Core.Essentials.CompleteSample.Dtos.Product;
+using DavidStudio.Core.Essentials.CompleteSample.Models.Product;
 using DavidStudio.Core.Essentials.CompleteSample.StronglyTypedIds;
 using MassTransit;
 
@@ -7,25 +8,25 @@ namespace DavidStudio.Core.Essentials.CompleteSample.Entities;
 
 public sealed class Product : Entity<ProductId>,
     ITimedEntity, ISoftDeletable,
-    ISelfManageable<Product, ProductCreateDto, ProductUpdateDto>
+    ISelfManageable<Product, ProductCreateModel, ProductUpdateModel>
 {
-    private Product() { }
+    public string Name { get; set; } = null!;
 
-    public string Name { get; private set; } = null!;
+    public decimal Price { get; set; }
 
-    public decimal Price { get; private set; }
+    public int StockCount { get; set; }
 
-    public int StockCount { get; private set; }
-
-    public ManufacturerId ManufacturerId { get; private init; }
+    public ManufacturerId ManufacturerId { get; init; }
     public Manufacturer Manufacturer { get; init; } = null!;
 
-    public DateTime CreatedAtUtc { get; set; }
+    public IdentityId CreatedByUserId { get; init; }
+    public IdentityId? ModifiedByUserId { get; set; }
 
+    public DateTime CreatedAtUtc { get; set; }
     public DateTime ModifiedAtUtc { get; set; }
     public bool IsDeleted { get; set; }
 
-    public static Product Create(ProductCreateDto model)
+    public static Product Create(ProductCreateModel model)
     {
         if (model.StockCount < 0)
             throw new ArgumentOutOfRangeException(nameof(model.StockCount), model.StockCount, "Stock count cannot be negative");
@@ -36,11 +37,13 @@ public sealed class Product : Entity<ProductId>,
             Name = model.Name,
             Price = model.Price,
             StockCount = model.StockCount,
-            ManufacturerId = model.ManufacturerId
+            ManufacturerId = model.ManufacturerId,
+            CreatedByUserId = model.UserId,
+            ModifiedByUserId = null
         };
     }
 
-    public void Update(ProductUpdateDto model)
+    public void Update(ProductUpdateModel model)
     {
         if (model.StockCount < 0)
             throw new ArgumentOutOfRangeException(nameof(model.StockCount), model.StockCount, "Stock count cannot be negative");
@@ -48,5 +51,6 @@ public sealed class Product : Entity<ProductId>,
         Name = model.Name;
         Price = model.Price;
         StockCount = model.StockCount;
+        ModifiedByUserId = model.UserId;
     }
 }
