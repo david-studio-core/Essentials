@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using System.Reflection;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace DavidStudio.Core.Swagger.Filters;
@@ -31,13 +30,15 @@ public class SwaggerStrongIdFilter : ISchemaFilter
     /// <summary>
     /// Applies the schema filter to modify the OpenAPI schema for supported "strongly-typed" ID types.
     /// </summary>
-    /// <param name="schema">The <see cref="OpenApiSchema"/> representing the current type in the Swagger documentation.</param>
+    /// <param name="schema">The <see cref="IOpenApiSchema"/> representing the current type in the Swagger documentation.</param>
     /// <param name="context">The <see cref="SchemaFilterContext"/> providing contextual information about the type being processed.</param>
-    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
     {
+        if (schema is not OpenApiSchema concrete) return;
+
         if (!context.Type.Name.EndsWith("Id") ||
             !context.Type.IsValueType ||
-            context.Type.GetCustomAttribute(typeof(TypeConverterAttribute)) is not TypeConverterAttribute attr ||
+            context.Type.GetCustomAttribute<TypeConverterAttribute>() is not { } attr ||
             Type.GetType(attr.ConverterTypeName) is not { } type)
         {
             return;
@@ -46,14 +47,8 @@ public class SwaggerStrongIdFilter : ISchemaFilter
         if (Activator.CreateInstance(type) is not TypeConverter converter) return;
 
         if (converter.CanConvertTo(typeof(Guid)) || converter.CanConvertTo(typeof(string)))
-        {
-            schema.Type = "string";
-            schema.Example = new OpenApiString(Guid.NewGuid().ToString());
-        }
+            concrete.Type = JsonSchemaType.String;
         else if (converter.CanConvertTo(typeof(int)) || converter.CanConvertTo(typeof(long)))
-        {
-            schema.Type = "integer";
-            schema.Example = new OpenApiInteger(0);
-        }
+            concrete.Type = JsonSchemaType.Integer;
     }
 }

@@ -1,7 +1,10 @@
-﻿
-using DavidStudio.Core.Auth.PermissionAuthorization;
-using Microsoft.OpenApi.Models;
+﻿using DavidStudio.Core.Auth.PermissionAuthorization;
 using Swashbuckle.AspNetCore.SwaggerGen;
+#if NET10_0_OR_GREATER
+using Microsoft.OpenApi;
+#elif NET8_0_OR_GREATER
+using Microsoft.OpenApi.Models;
+#endif
 
 namespace DavidStudio.Core.Auth.Swagger;
 
