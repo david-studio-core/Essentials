@@ -12,15 +12,16 @@
         <Authors>David Khachatryan</Authors>
         <Company>David Studio</Company>
         <Copyright>Copyright (c) 2025 David Khachatryan (David Studio)</Copyright>
-        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <Product>Essentials</Product>
         <Description>
             A productivity library that accelerates .NET project scaffolding by providing ready-to-use features for
             common application needs. Includes data I/O helpers and abstractions, authentication utilities,
-            OpenAPI/Swagger integration features, pagination helpers, standardized result/response types, and general-purpose
+            OpenAPI/Swagger integration features, standardized result/response types, pagination helpers, and general-purpose
             utilities.
         </Description>
         <PackageIcon>logo.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <PackageProjectUrl>https://github.com/david-studio-core/Essentials</PackageProjectUrl>
         <RepositoryUrl>https://github.com/david-studio-core/Essentials</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
@@ -39,11 +40,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="logo.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
         <None Include="LICENSE.txt" Pack="true" PackagePath="\"/>
+        <None Include="logo.png" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>
