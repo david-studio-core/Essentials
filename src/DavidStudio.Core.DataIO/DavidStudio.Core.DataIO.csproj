@@ -6,11 +6,6 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <PackageId>DavidStudio.Core.DataIO</PackageId>
-        <Version>0.0.0</Version>
-    </PropertyGroup>
-
     <ItemGroup>
         <ProjectReference Include="..\DavidStudio.Core.Pagination\DavidStudio.Core.Pagination.csproj"/>
         <ProjectReference Include="..\DavidStudio.Core.Results\DavidStudio.Core.Results.csproj"/>

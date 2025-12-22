@@ -6,9 +6,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <PackageId>DavidStudio.Core.Pagination</PackageId>
-        <Version>0.0.0</Version>
-    </PropertyGroup>
-
 </Project>
