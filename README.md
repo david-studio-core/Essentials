@@ -55,12 +55,12 @@ Apple M4 Max, 1 CPU, 16 logical and 16 physical cores
   [Host]     : .NET 10.0.0 (10.0.0, 10.0.25.52411), Arm64 RyuJIT armv8.0-a
   DefaultJob : .NET 10.0.0 (10.0.0, 10.0.25.52411), Arm64 RyuJIT armv8.0-a
 ```
-| Method                                      | Mean      | Error     | StdDev    | Rank | Gen0   | Gen1   | Allocated |
-|---------------------------------------------|----------:|----------:|----------:|-----:|-------:|-------:|----------:|
-| Essentials_DynamicOrdering_CursorPagination |  5.193 μs | 0.0522 μs | 0.0463 μs |    2 | 1.3428 |      - |  10.99 KB |
-| Essentials_DynamicOrdering_OffsetPagination |  9.278 μs | 0.0665 μs | 0.0589 μs |    4 | 2.1973 |      - |  18.29 KB |
-| LINQ_DynamicOrdering_CursorPagination       |  9.847 μs | 0.0692 μs | 0.0613 μs |    5 | 3.1738 | 0.0610 |  26.06 KB |
-| LINQ_DynamicOrdering_OffsetPagination       | 13.725 μs | 0.0969 μs | 0.0906 μs |    6 | 3.9063 |      - |  32.73 KB |
+| Method                                      | Mean      | Error     |  StdDev    | Gen0   | Gen1   | Allocated |
+|---------------------------------------------|----------:|----------:|-----------:|-------:|-------:|----------:|
+| Essentials_DynamicOrdering_CursorPagination |  5.193 μs | 0.0522 μs |  0.0463 μs | 1.3428 |      - |  10.99 KB |
+| Essentials_DynamicOrdering_OffsetPagination |  9.278 μs | 0.0665 μs |  0.0589 μs | 2.1973 |      - |  18.29 KB |
+| LINQ_DynamicOrdering_CursorPagination       |  9.847 μs | 0.0692 μs |  0.0613 μs | 3.1738 | 0.0610 |  26.06 KB |
+| LINQ_DynamicOrdering_OffsetPagination       | 13.725 μs | 0.0969 μs |  0.0906 μs | 3.9063 |      - |  32.73 KB |
 
 
 ## 🤝 Contributing
