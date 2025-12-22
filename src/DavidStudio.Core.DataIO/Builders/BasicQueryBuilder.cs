@@ -21,7 +21,7 @@ public class BasicQueryBuilder<TEntity>(IQueryable<TEntity> query)
     /// <summary>
     /// Gets or sets the underlying <see cref="IQueryable{TEntity}"/> being composed.
     /// </summary>
-    public IQueryable<TEntity> Query { get; protected set; } = query;
+    public IQueryable<TEntity> Query { get; set; } = query;
 
     /// <summary>
     /// Enables or disables entity tracking in the query.
