@@ -24,14 +24,11 @@ jobs:
       - name: Restore
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-
       - name: Run tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test --configuration Release --verbosity normal
 
       - name: Pack
-        run: dotnet pack src/DavidStudio.Core.Essentials/DavidStudio.Core.Essentials.csproj --configuration Release --no-build -o out
+        run: dotnet pack src/DavidStudio.Core.Essentials/DavidStudio.Core.Essentials.csproj --configuration Release -o out
 
       - name: NuGet login
         uses: NuGet/login@v1

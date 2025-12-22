@@ -8,7 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\DavidStudio.Core.Essentials\DavidStudio.Core.Essentials.csproj"/>
+        <ProjectReference Include="..\..\src\DavidStudio.Core.DataIO\DavidStudio.Core.DataIO.csproj"/>
+        <ProjectReference Include="..\..\src\DavidStudio.Core.Auth\DavidStudio.Core.Auth.csproj"/>
+        <ProjectReference Include="..\..\src\DavidStudio.Core.Swagger\DavidStudio.Core.Swagger.csproj"/>
+        <ProjectReference Include="..\..\src\DavidStudio.Core.Pagination\DavidStudio.Core.Pagination.csproj"/>
+        <ProjectReference Include="..\..\src\DavidStudio.Core.Results\DavidStudio.Core.Results.csproj"/>
+        <ProjectReference Include="..\..\src\DavidStudio.Core.Utilities\DavidStudio.Core.Utilities.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
