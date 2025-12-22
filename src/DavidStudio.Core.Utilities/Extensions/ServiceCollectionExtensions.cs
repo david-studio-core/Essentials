@@ -1,7 +1,6 @@
 using System.Reflection;
+using Asp.Versioning;
 using DavidStudio.Core.Utilities.Options;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -90,22 +89,22 @@ public static class ServiceCollectionExtensions
     public static void AddDefaultApiVersioning(this IServiceCollection services)
     {
         services.AddApiVersioning(opt =>
-        {
-            opt.DefaultApiVersion = new ApiVersion(1, 0);
-            opt.AssumeDefaultVersionWhenUnspecified = true;
-            opt.ReportApiVersions = true;
-            opt.ApiVersionReader = ApiVersionReader.Combine(
-                new UrlSegmentApiVersionReader(),
-                new QueryStringApiVersionReader(),
-                new HeaderApiVersionReader("x-api-version"),
-                new MediaTypeApiVersionReader("x-api-version"));
-        });
-
-        services.AddVersionedApiExplorer(setup =>
-        {
-            setup.GroupNameFormat = "'v'VVV";
-            setup.SubstituteApiVersionInUrl = true;
-        });
+            {
+                opt.DefaultApiVersion = new ApiVersion(1, 0);
+                opt.AssumeDefaultVersionWhenUnspecified = true;
+                opt.ReportApiVersions = true;
+                opt.ApiVersionReader = ApiVersionReader.Combine(
+                    new UrlSegmentApiVersionReader(),
+                    new QueryStringApiVersionReader(),
+                    new HeaderApiVersionReader("x-api-version"),
+                    new MediaTypeApiVersionReader("x-api-version"));
+            })
+            .AddMvc()
+            .AddApiExplorer(opt =>
+            {
+                opt.GroupNameFormat = "'v'VVV";
+                opt.SubstituteApiVersionInUrl = true;
+            });
     }
 
     /// <summary>
@@ -126,7 +125,7 @@ public static class ServiceCollectionExtensions
     public static void AddCorsFromConfig(this IServiceCollection services, IConfiguration configuration)
     {
         var corsOptions = configuration.GetSection(nameof(ApplicationCorsOptions)).Get<ApplicationCorsOptions>()
-            ?? throw new InvalidOperationException("Cors options not found in configuration.");
+                          ?? throw new InvalidOperationException("Cors options not found in configuration.");
 
         services.AddCors(options =>
             options.AddDefaultPolicy(policy =>

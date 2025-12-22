@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using DavidStudio.Core.Auth.Controllers;
 using DavidStudio.Core.Essentials.CompleteSample.Data;
 using DavidStudio.Core.Essentials.CompleteSample.Dtos.Product;

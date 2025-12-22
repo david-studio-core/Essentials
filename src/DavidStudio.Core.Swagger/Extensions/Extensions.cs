@@ -1,7 +1,7 @@
-﻿using DavidStudio.Core.Swagger.Configurations;
+﻿using Asp.Versioning.ApiExplorer;
+using DavidStudio.Core.Swagger.Configurations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;

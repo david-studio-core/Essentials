@@ -1,8 +1,8 @@
 using System.Reflection;
+using Asp.Versioning.ApiExplorer;
 using DavidStudio.Core.Swagger.Attributes;
 using DavidStudio.Core.Swagger.Filters;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
