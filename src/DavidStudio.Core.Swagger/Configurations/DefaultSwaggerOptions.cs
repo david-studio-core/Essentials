@@ -25,31 +25,33 @@ namespace DavidStudio.Core.Swagger.Configurations;
 /// <item>Schema filtering for "strongly-typed" ID types using <see cref="SwaggerStrongIdFilter"/>.</item>
 /// </list>
 /// </remarks>
-/// <param name="provider">The API version description provider used to enumerate available API versions.</param>
+/// <param name="serviceProvider">The default IServiceProvider.</param>
 /// <param name="title">The title to display in Swagger UI for all API versions.</param>
-public class DefaultSwaggerOptions(IApiVersionDescriptionProvider provider, string title)
+public class DefaultSwaggerOptions(IServiceProvider serviceProvider, string title)
     : IConfigureOptions<SwaggerGenOptions>
 {
     public void Configure(SwaggerGenOptions options)
     {
-        foreach (var description in provider.ApiVersionDescriptions)
+        options.EnableAnnotations();
+        options.TagActionsBy(api =>
         {
+            if (api.ActionDescriptor is ControllerActionDescriptor controllerActionDescriptor)
+                return [controllerActionDescriptor.ControllerName];
+
+            throw new InvalidOperationException("Unable to determine tag for endpoint.");
+        });
+
+        SwaggerControllerOrder<ControllerBase> swaggerControllerOrder = new(Assembly.GetEntryAssembly() ?? throw new NullReferenceException());
+        options.OrderActionsBy(apiDesc => swaggerControllerOrder.SortKey(apiDesc.ActionDescriptor.RouteValues["controller"]));
+
+        options.SchemaFilter<SwaggerStrongIdFilter>();
+
+        using var scope = serviceProvider.CreateScope();
+        var apiVersionDescriptionProvider = scope.ServiceProvider.GetService<IApiVersionDescriptionProvider>();
+        if (apiVersionDescriptionProvider is null) return;
+
+        foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
             options.SwaggerDoc(description.GroupName, CreateVersionInfo(description, title));
-
-            options.EnableAnnotations();
-            options.TagActionsBy(api =>
-            {
-                if (api.ActionDescriptor is ControllerActionDescriptor controllerActionDescriptor)
-                    return [controllerActionDescriptor.ControllerName];
-
-                throw new InvalidOperationException("Unable to determine tag for endpoint.");
-            });
-
-            SwaggerControllerOrder<ControllerBase> swaggerControllerOrder = new(Assembly.GetEntryAssembly() ?? throw new NullReferenceException());
-            options.OrderActionsBy(apiDesc => swaggerControllerOrder.SortKey(apiDesc.ActionDescriptor.RouteValues["controller"]));
-
-            options.SchemaFilter<SwaggerStrongIdFilter>();
-        }
     }
 
     private static OpenApiInfo CreateVersionInfo(ApiVersionDescription desc, string title)

@@ -38,7 +38,7 @@ public static class Extensions
 
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>>(sp =>
         {
-            var provider = sp.GetRequiredService<IApiVersionDescriptionProvider>();
+            var provider = sp.GetRequiredService<IServiceProvider>();
             return new DefaultSwaggerOptions(provider, title);
         });
 
@@ -61,15 +61,18 @@ public static class Extensions
     /// </remarks>
     public static void UseDefaultSwagger(this WebApplication app)
     {
-        var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+        var apiVersionDescriptionProvider = app.Services.GetService<IApiVersionDescriptionProvider>();
 
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
-            foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions.Reverse())
+            if (apiVersionDescriptionProvider is not null)
             {
-                options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
-                    description.GroupName.ToUpperInvariant());
+                foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions.Reverse())
+                {
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+                        description.GroupName.ToUpperInvariant());
+                }
             }
         });
 
