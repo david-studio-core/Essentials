@@ -7,6 +7,7 @@ using Elastic.Transport;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using RedLockNet;
 using RedLockNet.SERedis;
 using RedLockNet.SERedis.Configuration;
@@ -119,6 +120,43 @@ public static class ServiceCollectionExtensions
 
             return redis;
         });
+    }
+
+    /// <summary>
+    /// Registers a distributed cache implementation based on the current host environment.
+    /// In development, an in-memory cache is used, while in non-development environments
+    /// a Redis-backed distributed cache is configured.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
+    /// <param name="environment">The current host environment used to determine the cache implementation.</param>
+    /// <param name="configuration">The application configuration used to resolve the Redis connection string.</param>
+    /// <param name="connectionString">Optional Redis connection string. If null, will use "Redis" from ConnectionStings section.</param>
+    /// <returns>The configured <see cref="IServiceCollection"/>.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the Redis connection string cannot be resolved.</exception>
+    public static IServiceCollection AddDistributedCache(this IServiceCollection services,
+        IHostEnvironment environment,
+        IConfiguration configuration,
+        string? connectionString = null)
+    {
+        if (environment.IsDevelopment())
+            services.AddDistributedMemoryCache();
+        else
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                connectionString ??= configuration.GetConnectionString("Redis")
+                                     ?? throw new InvalidOperationException("No redis connection string found.");
+
+                options.Configuration = connectionString;
+                options.ConfigurationOptions = new ConfigurationOptions
+                {
+                    AbortOnConnectFail = true,
+                    EndPoints = { connectionString }
+                };
+            });
+        }
+
+        return services;
     }
 
     /// <summary>

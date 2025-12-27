@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using DavidStudio.Core.Auth.Options;
 using DavidStudio.Core.Auth.PermissionAuthorization;
 using DavidStudio.Core.Auth.Swagger;
@@ -71,33 +73,41 @@ public static class IdentityExtensions
                 ValidateIssuerSigningKey = true
             };
 
-            if (hubs.Length > 0)
+            options.Events = new JwtBearerEvents
             {
-                options.Events = new JwtBearerEvents
+                OnMessageReceived = context =>
                 {
-                    OnMessageReceived = context =>
+                    if (hubs.Length == 0)
+                        return Task.CompletedTask;
+
+                    var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
+
+                    if (string.IsNullOrWhiteSpace(authHeader) ||
+                        !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
                     {
-                        var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
-
-                        if (string.IsNullOrWhiteSpace(authHeader) ||
-                            !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                        {
-                            return Task.CompletedTask;
-                        }
-
-                        var accessToken = authHeader["Bearer ".Length..].Trim();
-                        var path = context.HttpContext.Request.Path;
-
-                        foreach (var hub in hubs)
-                        {
-                            if (path.StartsWithSegments(hub))
-                                context.Token = accessToken;
-                        }
-
                         return Task.CompletedTask;
                     }
-                };
-            }
+
+                    var accessToken = authHeader["Bearer ".Length..].Trim();
+                    var path = context.HttpContext.Request.Path;
+
+                    foreach (var hub in hubs)
+                    {
+                        if (path.StartsWithSegments(hub))
+                            context.Token = accessToken;
+                    }
+
+                    return Task.CompletedTask;
+                },
+                OnTokenValidated = ctx =>
+                {
+                    var typ = ctx.Principal?.FindFirstValue(JwtRegisteredClaimNames.Typ);
+                    if (typ == "2fa_challenge")
+                        ctx.Fail("2FA challenge token is not valid for API access.");
+
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         return services;
