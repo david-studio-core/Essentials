@@ -60,6 +60,7 @@ public static class IdentityExtensions
         }).AddJwtBearer(options =>
         {
             options.SaveToken = true;
+            options.MapInboundClaims = false;
 
             options.TokenValidationParameters = new TokenValidationParameters
             {
@@ -72,9 +73,9 @@ public static class IdentityExtensions
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                
+
                 RoleClaimType = DavidStudioClaimTypes.Role,
-                NameClaimType = DavidStudioClaimTypes.Sub
+                NameClaimType = DavidStudioClaimTypes.Nickname
             };
 
             options.Events = new JwtBearerEvents
@@ -105,7 +106,7 @@ public static class IdentityExtensions
                 },
                 OnTokenValidated = ctx =>
                 {
-                    var typ = ctx.Principal?.FindFirstValue(JwtRegisteredClaimNames.Typ);
+                    var typ = ctx.Principal?.FindFirstValue(DavidStudioClaimTypes.Typ);
                     if (typ == "2fa_challenge")
                         ctx.Fail("2FA challenge token is not valid for API access.");
 
