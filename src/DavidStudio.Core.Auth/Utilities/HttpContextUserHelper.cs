@@ -17,12 +17,12 @@ public static class HttpContextUserHelper
     /// <param name="user">The <see cref="ClaimsPrincipal"/> representing the current user.</param>
     /// <returns>The <see cref="IdentityId"/> extracted from the claims.</returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown if the <see cref="ApplicationClaimTypes.UserIdentifier"/> claim is missing.
+    /// Thrown if the <see cref="DavidStudioClaimTypes.Sub"/> claim is missing.
     /// </exception>
     public static IdentityId GetId(this ClaimsPrincipal user)
     {
-        var userId = user.FindFirstValue(ApplicationClaimTypes.UserIdentifier)
-                     ?? throw new InvalidOperationException($"{ApplicationClaimTypes.UserIdentifier} is required");
+        var userId = user.FindFirstValue(DavidStudioClaimTypes.Sub)
+                     ?? throw new InvalidOperationException($"{DavidStudioClaimTypes.Sub} is required");
 
         return IdentityId.Parse(userId);
     }
@@ -33,12 +33,12 @@ public static class HttpContextUserHelper
     /// <param name="user">The <see cref="ClaimsPrincipal"/> representing the current user.</param>
     /// <returns>The <see cref="UserSessionId"/> extracted from the claims.</returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown if the <see cref="ApplicationClaimTypes.UserSessionIdentifier"/> claim is missing.
+    /// Thrown if the <see cref="DavidStudioClaimTypes.SessionIdentifier"/> claim is missing.
     /// </exception>
     public static UserSessionId GetSessionId(this ClaimsPrincipal user)
     {
-        var sessionId = user.FindFirstValue(ApplicationClaimTypes.UserSessionIdentifier)
-                        ?? throw new InvalidOperationException($"{ApplicationClaimTypes.UserSessionIdentifier} is required");
+        var sessionId = user.FindFirstValue(DavidStudioClaimTypes.SessionIdentifier)
+                        ?? throw new InvalidOperationException($"{DavidStudioClaimTypes.SessionIdentifier} is required");
 
         return UserSessionId.Parse(sessionId);
     }
@@ -49,12 +49,12 @@ public static class HttpContextUserHelper
     /// <param name="user">The <see cref="ClaimsPrincipal"/> representing the current user.</param>
     /// <returns>The user's date of birth as <see cref="DateTime"/>.</returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown if the <see cref="ApplicationClaimTypes.DateOfBirth"/> claim is missing.
+    /// Thrown if the <see cref="DavidStudioClaimTypes.DateOfBirth"/> claim is missing.
     /// </exception>
     public static DateTime GetDateOfBirth(this ClaimsPrincipal user)
     {
-        var dateOfBirth = user.FindFirstValue(ApplicationClaimTypes.DateOfBirth)
-                          ?? throw new InvalidOperationException($"{ApplicationClaimTypes.DateOfBirth} is required");
+        var dateOfBirth = user.FindFirstValue(DavidStudioClaimTypes.DateOfBirth)
+                          ?? throw new InvalidOperationException($"{DavidStudioClaimTypes.DateOfBirth} is required");
 
         return DateTime.Parse(dateOfBirth);
     }
@@ -65,12 +65,12 @@ public static class HttpContextUserHelper
     /// <param name="user">The <see cref="ClaimsPrincipal"/> representing the current user.</param>
     /// <returns>The <see cref="Sex"/> enum value extracted from claims.</returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown if the <see cref="ApplicationClaimTypes.Sex"/> claim is missing.
+    /// Thrown if the <see cref="DavidStudioClaimTypes.Gender"/> claim is missing.
     /// </exception>
     public static Sex GetSex(this ClaimsPrincipal user)
     {
-        var sex = user.FindFirstValue(ApplicationClaimTypes.Sex)
-                  ?? throw new InvalidOperationException($"{ApplicationClaimTypes.Sex} is required");
+        var sex = user.FindFirstValue(DavidStudioClaimTypes.Gender)
+                  ?? throw new InvalidOperationException($"{DavidStudioClaimTypes.Gender} is required");
 
         return Enum.Parse<Sex>(sex, ignoreCase: true);
     }

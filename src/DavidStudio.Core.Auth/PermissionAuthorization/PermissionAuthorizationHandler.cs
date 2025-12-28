@@ -10,7 +10,7 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
         PermissionRequirement requirement)
     {
         var permissions = context.User.Claims
-           .Where(r => r.Type == ApplicationClaimTypes.Permission)
+           .Where(r => r.Type == DavidStudioClaimTypes.Permission)
            .Select(r => r.Value)
            .ToHashSet();
 

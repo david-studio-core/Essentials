@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using DavidStudio.Core.Auth.Data;
 using DavidStudio.Core.Auth.Options;
 using DavidStudio.Core.Auth.PermissionAuthorization;
 using DavidStudio.Core.Auth.Swagger;
@@ -70,7 +71,10 @@ public static class IdentityExtensions
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
-                ValidateIssuerSigningKey = true
+                ValidateIssuerSigningKey = true,
+                
+                RoleClaimType = DavidStudioClaimTypes.Role,
+                NameClaimType = DavidStudioClaimTypes.Sub
             };
 
             options.Events = new JwtBearerEvents
