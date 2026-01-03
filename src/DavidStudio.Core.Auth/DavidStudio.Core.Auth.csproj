@@ -37,4 +37,8 @@
         <AdditionalFiles Include="StronglyTypedIds/Templates/guid-efcore.typedid"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\DavidStudio.Core.Results\DavidStudio.Core.Results.csproj" />
+    </ItemGroup>
+
 </Project>
