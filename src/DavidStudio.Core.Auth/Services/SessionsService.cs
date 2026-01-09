@@ -13,7 +13,7 @@ public class SessionsService(HttpClient httpClient)
     /// </returns>
     public async Task<bool> IsExpiredAsync()
     {
-        var response = await httpClient.GetStringAsync("api/Sessions/check");
+        var response = await httpClient.GetStringAsync("api/sessions/check");
 
         return bool.Parse(response);
     }
