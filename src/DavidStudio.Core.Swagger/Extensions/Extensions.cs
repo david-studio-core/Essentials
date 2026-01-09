@@ -34,7 +34,11 @@ public static class Extensions
     public static void AddDefaultSwagger(this IServiceCollection services, string title, bool bearer = false)
     {
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(options =>
+        {
+            options.UseAllOfToExtendReferenceSchemas();
+            options.SupportNonNullableReferenceTypes();
+        });
 
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>>(sp =>
         {
