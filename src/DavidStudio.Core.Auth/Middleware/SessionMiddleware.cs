@@ -1,5 +1,7 @@
+using System.Text.Json;
 using DavidStudio.Core.Auth.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DavidStudio.Core.Auth.Middleware;
 
@@ -14,8 +16,20 @@ public class SessionMiddleware(RequestDelegate next)
         if (context.User.Identity is not null && context.User.Identity.IsAuthenticated &&
             await sessionsService.IsExpiredAsync())
         {
+            
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status401Unauthorized,
+                Title = "Unauthorized",
+                Detail = "Your session has expired."
+            };
+            
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.CompleteAsync();
+            context.Response.ContentType = "application/json";
+
+            var json = JsonSerializer.Serialize(problemDetails);
+            
+            await context.Response.WriteAsync(json);
 
             return;
         }
