@@ -16,7 +16,7 @@ namespace DavidStudio.Core.Auth.Extensions;
 /// <summary>
 /// Provides extension methods to configure JWT authentication and permission-based authorization.
 /// </summary>
-public static class IdentityExtensions
+public static class IdentityServiceCollectionExtensions
 {
     /// <summary>
     /// Configures JWT authentication for the application using settings from configuration.

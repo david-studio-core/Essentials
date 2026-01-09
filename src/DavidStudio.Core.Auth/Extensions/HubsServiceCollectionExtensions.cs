@@ -7,7 +7,7 @@ namespace DavidStudio.Core.Auth.Extensions;
 /// <summary>
 /// Provides extension methods to configure SignalR hubs.
 /// </summary>
-public static class HubsExtensions
+public static class HubsServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the <see cref="IdentityIdProvider"/> as the <see cref="IUserIdProvider"/> for SignalR.

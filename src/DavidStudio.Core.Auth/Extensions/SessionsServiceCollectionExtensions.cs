@@ -12,7 +12,7 @@ namespace DavidStudio.Core.Auth.Extensions;
 /// <summary>
 /// Provides extension methods to configure and use session management in the application.
 /// </summary>
-public static class SessionsExtensions
+public static class SessionsServiceCollectionExtensions
 {
     /// <summary>
     /// Registers services required for session management, including <see cref="SessionsService"/>
