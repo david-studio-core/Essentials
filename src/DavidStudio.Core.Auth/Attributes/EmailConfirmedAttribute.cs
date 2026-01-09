@@ -1,5 +1,6 @@
 using DavidStudio.Core.Auth.Data;
 using DavidStudio.Core.Results;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -12,12 +13,16 @@ public class EmailConfirmedAttribute : Attribute, IResourceFilter
     {
         var claim = context.HttpContext.User.FindFirst(DavidStudioClaimTypes.EmailConfirmed);
 
-        if (claim is null || claim.Value != true.ToString())
+        if (claim is null || !bool.TryParse(claim.Value, out var confirmed) || !confirmed)
         {
-            context.Result = new UnauthorizedObjectResult(
-                OperationResult.Failure(
-                    new OperationResultMessage(
-                        ErrorMessages.EmailMustBeConfirmed, OperationResultSeverity.Error)));
+            var result = OperationResult.Failure(
+                new OperationResultMessage(ErrorMessages.EmailMustBeConfirmed, OperationResultSeverity.Error));
+            
+            context.Result = new ObjectResult(result)
+            {
+                ContentTypes = ["application/json"],
+                StatusCode = StatusCodes.Status423Locked
+            };
         }
     }
 

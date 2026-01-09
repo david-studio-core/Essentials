@@ -1,12 +1,15 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using DavidStudio.Core.Auth.Data;
 using DavidStudio.Core.Auth.Options;
 using DavidStudio.Core.Auth.PermissionAuthorization;
 using DavidStudio.Core.Auth.Swagger;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -24,10 +27,10 @@ public static class IdentityServiceCollectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add authentication to.</param>
     /// <param name="configuration">The <see cref="IConfiguration"/> containing JWT settings.</param>
     /// <returns>The <see cref="IServiceCollection"/> for chaining.</returns>
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services,
+    public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services,
         IConfiguration configuration)
     {
-        return AddJwtAuthentication(services, configuration, []);
+        return services.AddJwtAuthentication(configuration, []);
     }
 
     /// <summary>
@@ -39,20 +42,20 @@ public static class IdentityServiceCollectionExtensions
     /// <param name="hubs">An array of SignalR hub paths for which JWT tokens should be read from HTTP headers.</param>
     /// <returns>The <see cref="IServiceCollection"/> for chaining.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the JWT configuration section is missing.</exception>
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services,
+    public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services,
         IConfiguration configuration, string[] hubs)
     {
-        services.AddOptions<JwtAuthorizationOptions>()
-            .BindConfiguration(nameof(JwtAuthorizationOptions))
+        services.AddOptions<JwtOptions>()
+            .BindConfiguration(nameof(JwtOptions))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
         var jwtAuthorizationOptions = configuration
-                                          .GetRequiredSection(nameof(JwtAuthorizationOptions))
-                                          .Get<JwtAuthorizationOptions>()
-                                      ?? throw new InvalidOperationException("Missing configuration section: JwtAuthorizationOptions");
+                                          .GetRequiredSection(nameof(JwtOptions))
+                                          .Get<JwtOptions>()
+                                      ?? throw new InvalidOperationException($"Missing configuration section: {nameof(JwtOptions)}");
 
-        services.AddAuthentication(options =>
+        return services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -73,6 +76,8 @@ public static class IdentityServiceCollectionExtensions
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
+
+                ClockSkew = TimeSpan.FromSeconds(30),
 
                 RoleClaimType = DavidStudioClaimTypes.Role,
                 NameClaimType = DavidStudioClaimTypes.Nickname
@@ -104,18 +109,34 @@ public static class IdentityServiceCollectionExtensions
 
                     return Task.CompletedTask;
                 },
-                OnTokenValidated = ctx =>
+                OnChallenge = async context =>
                 {
-                    var typ = ctx.Principal?.FindFirstValue(DavidStudioClaimTypes.Typ);
+                    context.HandleResponse();
+
+                    var problemDetails = new ProblemDetails
+                    {
+                        Status = StatusCodes.Status401Unauthorized,
+                        Title = "Unauthorized",
+                        Detail = context.ErrorDescription ??
+                                 context.AuthenticateFailure?.Message ??
+                                 "You are not authorized to access this resource."
+                    };
+
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.ContentType = "application/json";
+
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails));
+                },
+                OnTokenValidated = context =>
+                {
+                    var typ = context.Principal?.FindFirstValue(DavidStudioClaimTypes.Typ);
                     if (typ == "2fa_challenge")
-                        ctx.Fail("2FA challenge token is not valid for API access.");
+                        context.Fail("2FA challenge token is not valid for API access.");
 
                     return Task.CompletedTask;
                 }
             };
         });
-
-        return services;
     }
 
     /// <summary>

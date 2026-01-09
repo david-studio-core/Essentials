@@ -1,12 +1,7 @@
 using DavidStudio.Core.Auth.StronglyTypedIds;
-using DavidStudio.Core.Essentials.CompleteSample.Dtos.Manufacturer;
-using DavidStudio.Core.Essentials.CompleteSample.Dtos.Product;
 using DavidStudio.Core.Essentials.CompleteSample.Entities;
-using DavidStudio.Core.Essentials.CompleteSample.Models.Product;
 using DavidStudio.Core.Essentials.CompleteSample.StronglyTypedIds;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DavidStudio.Core.Essentials.CompleteSample.Database;
 

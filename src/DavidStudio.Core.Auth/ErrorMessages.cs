@@ -2,6 +2,8 @@ namespace DavidStudio.Core.Auth;
 
 public static class ErrorMessages
 {
+    public const string SessionExpired = nameof(SessionExpired);
+    
     public const string JwtMustBeNew = nameof(JwtMustBeNew);
 
     public const string EmailMustBeConfirmed = nameof(EmailMustBeConfirmed);

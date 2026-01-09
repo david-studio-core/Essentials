@@ -15,7 +15,6 @@ namespace DavidStudio.Core.Essentials.CompleteSample.Controllers;
 [ApiVersion("1.0")]
 [Route("api/[controller]")]
 [SwaggerControllerOrder(1)]
-[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public class ManufacturersController(IManufacturersService manufacturersService) : ControllerBase
 {

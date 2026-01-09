@@ -2,7 +2,7 @@
 
 namespace DavidStudio.Core.Auth.Options;
 
-public class JwtAuthorizationOptions
+public class JwtOptions
 {
     [Required]
     public string Issuer { get; init; } = null!;

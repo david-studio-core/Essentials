@@ -1,3 +1,4 @@
+using DavidStudio.Core.Auth.Conventions;
 using DavidStudio.Core.Auth.Extensions;
 using DavidStudio.Core.DataIO.Extensions;
 using DavidStudio.Core.Essentials.CompleteSample.Database;
@@ -23,7 +24,9 @@ builder.Services.AddPermissionAuthorization();
 
 builder.Services.AddDefaultApiVersioning();
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers(options => options.Conventions.Add(new UnauthorizedResponseConvention()))
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
 var sqlConnectionString = builder.Configuration.GetConnectionString("CompleteSampleDb");
 

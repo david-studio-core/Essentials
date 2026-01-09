@@ -1,9 +1,7 @@
 using System.Linq.Expressions;
 using DavidStudio.Core.DataIO.Entities;
-using DavidStudio.Core.DataIO.Expressions;
 using DavidStudio.Core.DataIO.Helpers;
 using DavidStudio.Core.DataIO.Repositories;
-using DavidStudio.Core.DataIO.UnitOfWork.EfCore;
 using DavidStudio.Core.Pagination;
 using DavidStudio.Core.Pagination.InfiniteScroll;
 using DavidStudio.Core.Results;

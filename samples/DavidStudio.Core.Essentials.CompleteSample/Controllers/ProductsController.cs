@@ -17,7 +17,6 @@ namespace DavidStudio.Core.Essentials.CompleteSample.Controllers;
 [ApiVersion("1.0")]
 [Route("api/[controller]")]
 [SwaggerControllerOrder(0)]
-[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public class ProductsController(IProductsService productsService) : IdentityController
 {
