@@ -1,4 +1,5 @@
 using System.Net;
+using DavidStudio.Core.Auth.Conventions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -73,5 +74,18 @@ public static class ServiceCollectionExtensions
         });
 
         return services;
+    }
+
+    public static IMvcBuilder AddDefaultConfiguredControllers(this IServiceCollection services)
+    {
+        return services.AddControllers(options =>
+            {
+                options.Conventions.Add(new UnauthorizedResponseConvention());
+                options.Conventions.Add(new PermissionForbiddenResponseConvention());
+                options.Conventions.Add(new LockedResponseConvention());
+            })
+            .AddJsonOptions(options =>
+                options.JsonSerializerOptions.Converters.Add(
+                    new System.Text.Json.Serialization.JsonStringEnumConverter()));
     }
 }
