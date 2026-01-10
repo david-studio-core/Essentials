@@ -1,13 +1,15 @@
+using System.Net;
 using System.Reflection;
 using Asp.Versioning;
+using DavidStudio.Core.Auth.Conventions;
 using DavidStudio.Core.Utilities.Options;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Serilog;
 
 namespace DavidStudio.Core.Utilities.Extensions;
 
@@ -17,20 +19,162 @@ namespace DavidStudio.Core.Utilities.Extensions;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Configures the host to use Serilog for logging based on the application's configuration.
+    /// Configures Cross-Origin Resource Sharing (CORS) based on application configuration.
     /// </summary>
-    /// <param name="host">The <see cref="IHostBuilder"/> to configure.</param>
-    /// <returns>The <see cref="IHostBuilder"/> instance for chaining.</returns>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add CORS services to.</param>
+    /// <param name="configuration">The <see cref="IConfiguration"/> instance containing CORS settings.</param>
     /// <remarks>
-    /// Reads Serilog settings from the application's configuration (e.g., appsettings.json)
-    /// and configures the logger accordingly.
+    /// Reads <see cref="ApplicationCorsOptions"/> from configuration and sets up a default CORS policy:
+    /// <list type="bullet">
+    /// <item>Allows any header or only those specified in AllowedHeaders.</item>
+    /// <item>Allows any method or only those specified in AllowedMethods.</item>
+    /// <item>Restricts origins if AllowedOrigins are specified.</item>
+    /// <item>Always allows credentials.</item>
+    /// </list>
     /// </remarks>
-    public static IHostBuilder UseSerilogFromConfiguration(this IHostBuilder host)
+    /// <exception cref="InvalidOperationException">Thrown if the CORS configuration section is missing or invalid.</exception>
+    public static void AddCorsFromConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
-        host.UseSerilog((context, loggerConfig) =>
-            loggerConfig.ReadFrom.Configuration(context.Configuration));
+        var corsOptions = configuration.GetSection(nameof(ApplicationCorsOptions)).Get<ApplicationCorsOptions>()
+                          ?? throw new InvalidOperationException("Cors options not found in configuration.");
 
-        return host;
+        services.AddCors(options =>
+            options.AddDefaultPolicy(policy =>
+            {
+                if (corsOptions.AllowedHeaders is null)
+                    policy.AllowAnyHeader();
+                else
+                    policy.WithHeaders(corsOptions.AllowedHeaders.Split(';'));
+
+                if (corsOptions.AllowedMethods is null)
+                    policy.AllowAnyMethod();
+                else
+                    policy.WithMethods(corsOptions.AllowedMethods.Split(';'));
+
+                if (corsOptions.AllowedOrigins is not null)
+                    policy.WithOrigins(corsOptions.AllowedOrigins.Split(';'));
+
+                policy.AllowCredentials();
+            })
+        );
+    }
+
+    /// <summary>
+    /// Configures <see cref="ForwardedHeadersOptions"/> from application configuration,
+    /// including trusted proxy IP addresses and networks.  
+    /// 
+    /// The method binds the base options from configuration, then explicitly clears and
+    /// repopulates <c>KnownProxies</c> and <c>KnownNetworks</c>/<c>KnownIPNetworks</c>
+    /// to ensure only explicitly configured proxies are trusted.  
+    /// 
+    /// Supports both legacy and newer .NET versions via conditional compilation.
+    /// </summary>
+    public static IServiceCollection ConfigureForwardedHeadersOptionsFromConfiguration(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            configuration.GetSection(nameof(ForwardedHeadersOptions)).Bind(options);
+
+
+            var knownProxiesSection =
+                configuration.GetSection($"{nameof(ForwardedHeadersOptions)}:{nameof(ForwardedHeadersOptions.KnownProxies)}");
+
+            options.KnownProxies.Clear();
+
+            foreach (var proxyAddress in knownProxiesSection.GetChildren())
+            {
+                if (IPAddress.TryParse(proxyAddress.Value, out var ipAddress))
+                {
+                    options.KnownProxies.Add(ipAddress);
+                }
+            }
+
+#if NET10_0_OR_GREATER
+            var knownIpNetworksSection =
+                configuration.GetSection($"{nameof(ForwardedHeadersOptions)}:{nameof(ForwardedHeadersOptions.KnownIPNetworks)}");
+
+            options.KnownIPNetworks.Clear();
+
+            foreach (var networkConfig in knownIpNetworksSection.GetChildren())
+            {
+                var prefix = networkConfig.GetValue<string>("Prefix");
+                var prefixLength = networkConfig.GetValue<int>("PrefixLength");
+
+                if (prefix != null && IPAddress.TryParse(prefix, out var ipPrefix))
+                {
+                    options.KnownIPNetworks.Add(new IPNetwork(ipPrefix, prefixLength));
+                }
+            }
+#else
+            var knownIpNetworksSection =
+                configuration.GetSection($"{nameof(ForwardedHeadersOptions)}:{nameof(ForwardedHeadersOptions.KnownNetworks)}");
+
+            options.KnownNetworks.Clear();
+
+            foreach (var networkConfig in knownIpNetworksSection.GetChildren())
+            {
+                var prefix = networkConfig.GetValue<string>("Prefix");
+                var prefixLength = networkConfig.GetValue<int>("PrefixLength");
+
+                if (prefix != null && IPAddress.TryParse(prefix, out var ipPrefix))
+                {
+                    options.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(ipPrefix, prefixLength));
+                }
+            }
+#endif
+        });
+
+        return services;
+    }
+
+    public static IMvcBuilder AddDefaultControllers(this IServiceCollection services, Action<MvcOptions> setupAction)
+    {
+        return services.AddControllers(options =>
+            {
+                options.Conventions.Add(new UnauthorizedResponseConvention());
+                options.Conventions.Add(new ForbiddenResponseConvention());
+                options.Conventions.Add(new LockedResponseConvention());
+
+                setupAction(options);
+            })
+            .AddJsonOptions(options =>
+                options.JsonSerializerOptions.Converters.Add(
+                    new System.Text.Json.Serialization.JsonStringEnumConverter()));
+    }
+
+    /// <summary>
+    /// Configures default API versioning and versioned API explorer for the application.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add API versioning services to.</param>
+    /// <remarks>
+    /// Sets up:
+    /// <list type="bullet">
+    /// <item>Default API version 1.0.</item>
+    /// <item>Assumes the default version when unspecified by the client.</item>
+    /// <item>Reports supported API versions in responses.</item>
+    /// <item>Reads API version from URL segments, query string, headers, or media type.</item>
+    /// <item>Configures the versioned API explorer to generate documentation groups with format "v{major}.{minor}".</item>
+    /// </list>
+    /// </remarks>
+    public static void AddDefaultApiVersioning(this IServiceCollection services)
+    {
+        services.AddApiVersioning(opt =>
+            {
+                opt.DefaultApiVersion = new ApiVersion(1, 0);
+                opt.AssumeDefaultVersionWhenUnspecified = true;
+                opt.ReportApiVersions = true;
+                opt.ApiVersionReader = ApiVersionReader.Combine(
+                    new UrlSegmentApiVersionReader(),
+                    new QueryStringApiVersionReader(),
+                    new HeaderApiVersionReader("x-api-version"),
+                    new MediaTypeApiVersionReader("x-api-version"));
+            })
+            .AddMvc()
+            .AddApiExplorer(opt =>
+            {
+                opt.GroupNameFormat = "'v'VVV";
+                opt.SubstituteApiVersionInUrl = true;
+            });
     }
 
     /// <summary>
@@ -70,81 +214,5 @@ public static class ServiceCollectionExtensions
             });
 
         return services;
-    }
-
-    /// <summary>
-    /// Configures default API versioning and versioned API explorer for the application.
-    /// </summary>
-    /// <param name="services">The <see cref="IServiceCollection"/> to add API versioning services to.</param>
-    /// <remarks>
-    /// Sets up:
-    /// <list type="bullet">
-    /// <item>Default API version 1.0.</item>
-    /// <item>Assumes the default version when unspecified by the client.</item>
-    /// <item>Reports supported API versions in responses.</item>
-    /// <item>Reads API version from URL segments, query string, headers, or media type.</item>
-    /// <item>Configures the versioned API explorer to generate documentation groups with format "v{major}.{minor}".</item>
-    /// </list>
-    /// </remarks>
-    public static void AddDefaultApiVersioning(this IServiceCollection services)
-    {
-        services.AddApiVersioning(opt =>
-            {
-                opt.DefaultApiVersion = new ApiVersion(1, 0);
-                opt.AssumeDefaultVersionWhenUnspecified = true;
-                opt.ReportApiVersions = true;
-                opt.ApiVersionReader = ApiVersionReader.Combine(
-                    new UrlSegmentApiVersionReader(),
-                    new QueryStringApiVersionReader(),
-                    new HeaderApiVersionReader("x-api-version"),
-                    new MediaTypeApiVersionReader("x-api-version"));
-            })
-            .AddMvc()
-            .AddApiExplorer(opt =>
-            {
-                opt.GroupNameFormat = "'v'VVV";
-                opt.SubstituteApiVersionInUrl = true;
-            });
-    }
-
-    /// <summary>
-    /// Configures Cross-Origin Resource Sharing (CORS) based on application configuration.
-    /// </summary>
-    /// <param name="services">The <see cref="IServiceCollection"/> to add CORS services to.</param>
-    /// <param name="configuration">The <see cref="IConfiguration"/> instance containing CORS settings.</param>
-    /// <remarks>
-    /// Reads <see cref="ApplicationCorsOptions"/> from configuration and sets up a default CORS policy:
-    /// <list type="bullet">
-    /// <item>Allows any header or only those specified in AllowedHeaders.</item>
-    /// <item>Allows any method or only those specified in AllowedMethods.</item>
-    /// <item>Restricts origins if AllowedOrigins are specified.</item>
-    /// <item>Always allows credentials.</item>
-    /// </list>
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">Thrown if the CORS configuration section is missing or invalid.</exception>
-    public static void AddCorsFromConfig(this IServiceCollection services, IConfiguration configuration)
-    {
-        var corsOptions = configuration.GetSection(nameof(ApplicationCorsOptions)).Get<ApplicationCorsOptions>()
-                          ?? throw new InvalidOperationException("Cors options not found in configuration.");
-
-        services.AddCors(options =>
-            options.AddDefaultPolicy(policy =>
-            {
-                if (corsOptions.AllowedHeaders is null)
-                    policy.AllowAnyHeader();
-                else
-                    policy.WithHeaders(corsOptions.AllowedHeaders.Split(';'));
-
-                if (corsOptions.AllowedMethods is null)
-                    policy.AllowAnyMethod();
-                else
-                    policy.WithMethods(corsOptions.AllowedMethods.Split(';'));
-
-                if (corsOptions.AllowedOrigins is not null)
-                    policy.WithOrigins(corsOptions.AllowedOrigins.Split(';'));
-
-                policy.AllowCredentials();
-            })
-        );
     }
 }
