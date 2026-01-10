@@ -127,6 +127,34 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Adds MVC controllers with default conventions and JSON configuration.
+    /// </summary>
+    /// <remarks>
+    /// Registers standard response conventions for <c>401 Unauthorized</c>,
+    /// <c>403 Forbidden</c>, and <c>423 Locked</c>, applies optional MVC configuration,
+    /// and configures JSON serialization to write enum values as strings.
+    /// </remarks>
+    public static IMvcBuilder AddDefaultControllers(this IServiceCollection services)
+    {
+        return services.AddDefaultControllers(_ => { });
+    }
+
+    /// <summary>
+    /// Adds MVC controllers with default conventions and allows custom MVC options configuration.
+    /// </summary>
+    /// <param name="services">The service collection to add MVC services to.</param>
+    /// <param name="setupAction">
+    /// An action used to configure <see cref="MvcOptions"/> in addition to the default conventions.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IMvcBuilder"/> that can be used to further configure MVC services.
+    /// </returns>
+    /// <remarks>
+    /// Registers standard response conventions for <c>401 Unauthorized</c>,
+    /// <c>403 Forbidden</c>, and <c>423 Locked</c>, and configures JSON serialization
+    /// to serialize enum values as strings.
+    /// </remarks>
     public static IMvcBuilder AddDefaultControllers(this IServiceCollection services, Action<MvcOptions> setupAction)
     {
         return services.AddControllers(options =>
