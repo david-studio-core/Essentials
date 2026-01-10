@@ -81,7 +81,7 @@ public static class ServiceCollectionExtensions
         return services.AddControllers(options =>
             {
                 options.Conventions.Add(new UnauthorizedResponseConvention());
-                options.Conventions.Add(new PermissionForbiddenResponseConvention());
+                options.Conventions.Add(new ForbiddenResponseConvention());
                 options.Conventions.Add(new LockedResponseConvention());
             })
             .AddJsonOptions(options =>

@@ -21,7 +21,7 @@ public class FreshAuthFilter(long maxAgeInSeconds) : IResourceFilter
         context.Result = new ObjectResult(problemDetails)
         {
             StatusCode = StatusCodes.Status401Unauthorized,
-            ContentTypes = ["application/json"]
+            ContentTypes = ["application/problem+json"]
         };
     }
 

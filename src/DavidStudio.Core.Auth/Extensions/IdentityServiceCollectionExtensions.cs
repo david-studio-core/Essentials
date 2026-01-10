@@ -4,6 +4,7 @@ using System.Text.Json;
 using DavidStudio.Core.Auth.Data;
 using DavidStudio.Core.Auth.Options;
 using DavidStudio.Core.Auth.PermissionAuthorization;
+using DavidStudio.Core.Auth.ResultHandlers;
 using DavidStudio.Core.Auth.Swagger;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -54,6 +55,8 @@ public static class IdentityServiceCollectionExtensions
                                           .GetRequiredSection(nameof(JwtOptions))
                                           .Get<JwtOptions>()
                                       ?? throw new InvalidOperationException($"Missing configuration section: {nameof(JwtOptions)}");
+
+        services.AddSingleton<IAuthorizationMiddlewareResultHandler, DetailedAuthorizationResultHandler>();
 
         return services.AddAuthentication(options =>
         {
@@ -123,7 +126,7 @@ public static class IdentityServiceCollectionExtensions
                     };
 
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    context.Response.ContentType = "application/json";
+                    context.Response.ContentType = "application/problem+json";
 
                     await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails));
                 },

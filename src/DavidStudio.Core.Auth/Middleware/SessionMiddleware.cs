@@ -24,7 +24,7 @@ public class SessionMiddleware(RequestDelegate next)
             };
 
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            context.Response.ContentType = "application/json";
+            context.Response.ContentType = "application/problem+json";
 
             var json = JsonSerializer.Serialize(problemDetails);
 

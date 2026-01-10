@@ -15,7 +15,8 @@ public class LockedResponseConvention : IApplicationModelConvention
             foreach (var action in controller.Actions)
             {
                 var locked = action.Attributes.Any(a => a is EmailConfirmedAttribute) ||
-                             controller.Attributes.Any(a => a is EmailConfirmedAttribute) ||
+                             controller.Attributes.Any(a => a is EmailConfirmedAttribute)
+                             ||
                              action.Attributes.Any(a => a is PhoneConfirmedAttribute) ||
                              controller.Attributes.Any(a => a is PhoneConfirmedAttribute);
 
