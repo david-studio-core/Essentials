@@ -16,7 +16,7 @@ public class PhoneConfirmedAttribute : Attribute, IResourceFilter
         if (claim is null || !bool.TryParse(claim.Value, out var confirmed) || !confirmed)
         {
             var result = OperationResult.Failure(
-                new OperationResultMessage(ErrorMessages.EmailMustBeConfirmed, OperationResultSeverity.Error));
+                new OperationResultMessage(ErrorMessages.PhoneMustBeConfirmed, OperationResultSeverity.Error));
             
             context.Result = new ObjectResult(result)
             {
