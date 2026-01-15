@@ -4,6 +4,9 @@ public static class DavidStudioClaimTypes
 {
     internal const string ClaimTypeNamespace = "http://schemas.davidstudio.org/identity/claims/";
 
+    public const string LicenceVersion = ClaimTypeNamespace + "licence_version";
+    public const string PrivacyPolicyVersion = ClaimTypeNamespace + "privacy_polciy_version";
+    
     public const string Role = ClaimTypeNamespace + "role";
     public const string Permission = ClaimTypeNamespace + "permission";
 
