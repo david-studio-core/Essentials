@@ -8,7 +8,7 @@
 
     <PropertyGroup>
         <PackageId>DavidStudio.Core.Essentials</PackageId>
-        <Version>1.0.0-develop.17</Version>
+        <Version>1.0.0-develop.18</Version>
         <Authors>David Khachatryan</Authors>
         <Company>David Studio</Company>
         <Copyright>Copyright (c) 2025 David Khachatryan (David Studio)</Copyright>

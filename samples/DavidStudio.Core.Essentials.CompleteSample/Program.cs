@@ -49,7 +49,7 @@ else
 builder.Services.AddRabbitMq("EventBus");
 #endif
 
-builder.Services.AddDefaultSwagger("Complete Sample API", bearer: true);
+builder.Services.AddSwaggerWithBearer("Complete Sample API");
 
 builder.Services.AddDefaultOpenTelemetry("CompleteSampleApi");
 
