@@ -2,6 +2,7 @@ using System.Reflection;
 using Asp.Versioning.ApiExplorer;
 using DavidStudio.Core.Swagger.Attributes;
 using DavidStudio.Core.Swagger.Filters;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +39,12 @@ public class DefaultSwaggerOptions(IServiceProvider serviceProvider, string titl
             if (api.ActionDescriptor is ControllerActionDescriptor controllerActionDescriptor)
                 return [controllerActionDescriptor.ControllerName];
 
-            throw new InvalidOperationException("Unable to determine tag for endpoint.");
+            var endpointMetadata = api.ActionDescriptor.EndpointMetadata;
+            var tagMetadata = endpointMetadata.OfType<ITagsMetadata>().FirstOrDefault();
+            if (tagMetadata != null)
+                return tagMetadata.Tags.ToArray();
+
+            return [api.RelativePath?.Split('/')[0] ?? "Default"];
         });
 
         SwaggerControllerOrder<ControllerBase> swaggerControllerOrder = new(Assembly.GetEntryAssembly() ?? throw new NullReferenceException());
