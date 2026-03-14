@@ -148,10 +148,6 @@ public static class ServiceCollectionExtensions
                                      ?? throw new InvalidOperationException("No redis connection string found.");
 
                 options.Configuration = connectionString;
-                options.ConfigurationOptions = new ConfigurationOptions
-                {
-                    AbortOnConnectFail = true
-                };
             });
         }
 
