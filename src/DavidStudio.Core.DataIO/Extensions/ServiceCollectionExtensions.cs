@@ -150,8 +150,7 @@ public static class ServiceCollectionExtensions
                 options.Configuration = connectionString;
                 options.ConfigurationOptions = new ConfigurationOptions
                 {
-                    AbortOnConnectFail = true,
-                    EndPoints = { connectionString }
+                    AbortOnConnectFail = true
                 };
             });
         }
